@@ -4,7 +4,9 @@ const logger = require("morgan"); //Traza de requests
 const path = require("path"); //Resolucion de paths
 const socket = require("socket.io"); //
 const http = require("http");
+const bodyParser = require('body-parser');
 
+const adminPanel = require("./routes/adminPanel.js");
 
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
@@ -31,7 +33,11 @@ io.on("connection",(socket)=>{
 
 //APP'S BODY
 app.use(logger("dev"));
-app.use("/images", express.static(__dirname + "/public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+app.use(express.json())
+
+app.use("/adminPanel", adminPanel);
 
 app.get("/",(req,res)=>{
     res.sendFile(parentDirectory + "/loquor_frontend/index.html")
@@ -42,3 +48,12 @@ app.get("/",(req,res)=>{
 server.listen(port,()=>{
     console.log("Esperando respuestas");
 })
+
+
+
+/** 
+ * Ideas a agregar
+ * 1. Usuarios 
+ * 2. Pasar el contenido de index.html a chat.html
+ * 3. Crear servicios que se encarguen de: autenticación, enviado, recepción y recepcion al abrir el programa
+*/
