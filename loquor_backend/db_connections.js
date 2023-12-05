@@ -53,8 +53,15 @@ async function createUser(username, password) {
       database: "mydb",
     });
 
-    const query = "INSERT INTO users(username, password) VALUES (?, ?)";
-    const [rows, fields] = await con.execute(query, [username, password]);
+    let query = "SELECT * FROM users WHERE username = ?";
+    let [rows, fields] = await con.execute(query, [username]);
+    console.log(rows + " igualdades");
+    if(rows.length > 0){
+      return null;
+    }
+
+    query = "INSERT INTO users(username, password) VALUES (?, ?)";
+    [rows, fields] = await con.execute(query, [username, password]);
     console.log("Filas afectadas:", rows.affectedRows);
     await con.end();
   } catch (error) {
@@ -63,10 +70,10 @@ async function createUser(username, password) {
   }
 }
 
-async function modifyUser(username, password) {
+async function modifyUser(oldusername, username, password) {
   try {
-    if (!username && !password) {
-      throw new Error("Se requiere como minimo un usuario o contraseña.");
+    if (!oldusername && (!password || !username)) {
+      throw new Error("Se requiere como minimo el usuario base y un usuario o contraseña.");
     }
 
     const con = await mysql.createConnection({
@@ -79,22 +86,91 @@ async function modifyUser(username, password) {
     let rows, fields;
 
     if (username && password) {
-      let query = `UPDATE users
-        set username = ?,
-        password = ?
-        where username = ?`;
-      [rows, fields] = await con.execute(query, [username, password]);
+      let query = "UPDATE users set username = ?, password = ? where username = ?";
+      [rows, fields] = await con.execute(query, [username, password, oldusername]);
+      const formedQuery = con.format(query, [username, password, oldusername]);
+      console.log("Consulta SQL formada:", formedQuery);
     } else if (username) {
-      let query = `UPDATE users
-        set username = ?
-        where username = ?`;
-      [rows, fields] = await con.execute(query, [username]);
+      let query = "UPDATE users set username = ? where username = ?";
+      [rows, fields] = await con.execute(query, [username,oldusername]);
     } else if (password) {
-      let query = `UPDATE users
-        set password = ?
-        where username = ?`;
-      [rows, fields] = await con.execute(query, [password]);
+      let query = "UPDATE users set password = ? where username = ?";
+      [rows, fields] = await con.execute(query, [password, oldusername]);
     }
+    console.log("Filas afectadas:", rows.affectedRows);
+    await con.end();
+  } catch (error) {
+    console.error("Error en la modificacion del usuario:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+}
+
+async function deleteUser(username) {
+  console.log("A VER EL USER "+ username);
+  try {
+    if (!username) {
+      throw new Error(
+        "Se requieren el usuarioa a eliminar."
+      );
+    }
+
+    const con = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "root",
+      database: "mydb",
+    });
+
+    const query = "DELETE FROM users WHERE username = ?";
+    const [rows, fields] = await con.execute(query, [username]);
+    console.log("Filas afectadas:", rows.affectedRows);
+    await con.end();
+
+  } catch (error) {
+    console.error("Error en la eliminacion del usuario:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+}
+
+async function getUsers() {
+  try {
+    const con = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "root",
+      database: "mydb",
+    });
+
+    const query = "SELECT * FROM users";
+    const [rows, fields] = await con.execute(query);
+    console.log("Filas afectadas:", rows.affectedRows);
+    console.log(rows);
+    await con.end();
+    return rows;
+
+  } catch (error) {
+    console.error("Error en la eliminacion del usuario:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+}
+
+async function createAdmin(username, password) {
+  try {
+    if (!username || !password) {
+      throw new Error(
+        "Se requieren tanto el nombre de usuario como la contraseña."
+      );
+    }
+
+    const con = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "root",
+      database: "mydb",
+    });
+
+    const query = "INSERT INTO users(username, password, role) VALUES (?, ?, 'admin')";
+    const [rows, fields] = await con.execute(query, [username, password]);
     console.log("Filas afectadas:", rows.affectedRows);
     await con.end();
   } catch (error) {
@@ -103,6 +179,29 @@ async function modifyUser(username, password) {
   }
 }
 
-//setDB();
+async function verifyPassword(username, password){
+  try {
+    const con = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "root",
+      database: "mydb",
+    });
 
-module.exports = {createUser, modifyUser};
+    const query = "SELECT * FROM users where username = ?";
+    const [rows, fields] = await con.execute(query,[username]);
+    console.log(rows);
+    await con.end();
+    return rows;
+
+  } catch (error) {
+    console.error("Error al verificar password:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+}
+
+setDB();
+//createAdmin("admin","admin");
+
+
+module.exports = {createUser, modifyUser, deleteUser, getUsers, verifyPassword};

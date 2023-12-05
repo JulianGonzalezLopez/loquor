@@ -5,9 +5,9 @@ const path = require("path"); //Resolucion de paths
 const socket = require("socket.io"); //
 const http = require("http");
 const bodyParser = require('body-parser');
-
 const adminPanel = require("./routes/adminPanel.js");
-
+const chat = require("./routes/chat.js");
+const login = require("./routes/login.js");
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
 const currentDirectory = __dirname;
@@ -37,7 +37,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(express.json())
 
+app.use("/login",login);
 app.use("/adminPanel", adminPanel);
+app.use("/chat",chat);
 
 app.get("/",(req,res)=>{
     res.sendFile(parentDirectory + "/loquor_frontend/index.html")
