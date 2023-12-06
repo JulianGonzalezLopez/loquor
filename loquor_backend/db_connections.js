@@ -180,6 +180,7 @@ async function createAdmin(username, password) {
 }
 
 async function verifyPassword(username, password){
+  console.log(username + " : " + password);
   try {
     const con = await mysql.createConnection({
       host: "localhost",
@@ -192,7 +193,13 @@ async function verifyPassword(username, password){
     const [rows, fields] = await con.execute(query,[username]);
     console.log(rows);
     await con.end();
-    return rows;
+    if(rows[0].password === password){
+      return rows[0];
+    }
+    else{
+      return false;
+    }
+    
 
   } catch (error) {
     console.error("Error al verificar password:", error);

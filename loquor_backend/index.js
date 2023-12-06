@@ -8,6 +8,8 @@ const bodyParser = require('body-parser');
 const adminPanel = require("./routes/adminPanel.js");
 const chat = require("./routes/chat.js");
 const login = require("./routes/login.js");
+const authMiddleware = require("./authMiddleware");
+const authorize = require("./routes/authorize");
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
 const currentDirectory = __dirname;
@@ -35,16 +37,22 @@ io.on("connection",(socket)=>{
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.use(express.json())
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use("/login",login);
+//Routes free of authorization methods
+app.use("/authorize", authorize);
+app.use("/login", login);
+app.use(authMiddleware);
+
+//Auth required routes
 app.use("/adminPanel", adminPanel);
 app.use("/chat",chat);
 
+//home
 app.get("/",(req,res)=>{
     res.sendFile(parentDirectory + "/loquor_frontend/index.html")
 })
-
 
 //LISTENER
 server.listen(port,()=>{

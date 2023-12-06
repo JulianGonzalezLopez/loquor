@@ -7,10 +7,42 @@
     <title>Document</title>
 </head>
 <body>
-    <form id="login-form" action="/login" method="post">
+    <form id="login-form">
         <label for="username">Username: <input id="username" name="username" type="text"/></label>
         <label for="password">Password: <input id="password" name="password" type="password"/></label>
         <button>Enviar</button>
       </form>
     </body>
+    <script>
+        const loginForm = document.getElementById("login-form");
+        loginForm.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            let object = {};
+            let formData = new FormData(loginForm);
+            formData.forEach((value, key) => (object[key] = value));
+            let json = JSON.stringify(object);
+            console.log("json a enviar");
+            console.log(json);
+            fetch("/login", {
+                headers: {
+                    "Content-Type": "application/json",
+                  },
+                method:"post",
+                body:json
+            })
+            .then(res=>res.json())
+            .then(res=>{
+                console.log("json");
+                console.log(json)
+                fetch("/authorize",{
+                    headers: {
+                        "Content-Type": "application/json",
+                      },
+                    method:"post",
+                    body:json
+                });
+            });
+            
+        })
+    </script>
 </html>
