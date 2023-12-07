@@ -8,7 +8,7 @@ module.exports = function middleware (req,res,next){
       console.log("paso2");
       jwt.verify(req.headers["authorization"], process.env.SECRET, (err,authData)=>{
         if(err){
-          res.status(403).json("no tenes permiso")
+          res.redirect("/login");
         }
         else{
             console.log("paso3");
@@ -17,6 +17,6 @@ module.exports = function middleware (req,res,next){
       });
     }
     else{
-      res.sendStatus(403);
+      res.redirect("/login");
     }
   };

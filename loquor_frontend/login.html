@@ -40,7 +40,19 @@
                       },
                     method:"post",
                     body:json
-                });
+                })
+                .then(res=>res.json())
+                .then(json=>{
+                    console.log("Token: " + json.token);
+                    localStorage.setItem("token",json.token);
+                    fetch("/",{
+                        method:"get",
+                        headers:{
+                            "Authorization" : localStorage.getItem("token") ? localStorage.getItem("token") : ""
+                        }
+                    })
+                })
+                
             });
             
         })

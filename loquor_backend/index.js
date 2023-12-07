@@ -5,16 +5,17 @@ const path = require("path"); //Resolucion de paths
 const socket = require("socket.io"); //
 const http = require("http");
 const bodyParser = require('body-parser');
+const dotenv = require("dotenv").config();
+//INTERNAL REQUIRES
 const adminPanel = require("./routes/adminPanel.js");
 const chat = require("./routes/chat.js");
 const login = require("./routes/login.js");
-const authMiddleware = require("./authMiddleware");
 const authorize = require("./routes/authorize");
+const authMiddleware = require("./authMiddleware");
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
 const currentDirectory = __dirname;
 const parentDirectory = path.resolve(currentDirectory, "..");
-
 //SERVER CONFIG
 const app = express(); //Takes care of routing, requests and middlewares
 const server = http.createServer(app); //Real server
@@ -43,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 //Routes free of authorization methods
 app.use("/authorize", authorize);
 app.use("/login", login);
+
 app.use(authMiddleware);
 
 //Auth required routes
