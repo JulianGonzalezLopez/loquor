@@ -131,7 +131,13 @@
 </head>
 <body>
     <main>
+        <section id="users-section">   
+            <div id="users">
+
+            </div>
+        </section>
         <section id="chat">
+            <h4 id="currentChat"></h4>
             <ul id="messages">
 
             </ul>
@@ -147,7 +153,39 @@
         const form = document.getElementById("form");
         const input = document.getElementById("input");
         const messages = document.getElementById("messages");
+        const users = document.getElementById("users");
+        const currentChat = document.getElementById("currentChat");
 
+        window.addEventListener("load",()=>{
+            fetch("/adminPanel/users",{
+                method:"get",
+                headers:{
+                            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                        }
+            })
+            .then((res) => {
+                if (!res.ok) {
+                throw new Error(`Network response was not ok: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then((resJSON) => {
+                console.log(resJSON);
+                users.innerHTML = "";
+                resJSON.forEach((user) => {
+                const listItem = document.createElement("button");
+                listItem.textContent = user.username;
+                listItem.addEventListener("click",(e)=>{
+                    sessionStorage.setItem("currentChat",user.username);
+                    currentChat.innerText = user.username;
+                });
+                users.appendChild(listItem);
+                });
+            })
+            .catch((error) => console.error("Error fetching data:", error));
+        })
+        
+        
         form.addEventListener("submit",(e)=>{
             e.preventDefault();
 
@@ -162,6 +200,9 @@
             message.classList.add("msg");
             messages.appendChild(message);
         })
+
+
+
     </script>
 </body>
 </html>

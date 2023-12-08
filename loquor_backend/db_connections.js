@@ -1,20 +1,18 @@
 const mysql = require("mysql2/promise");
+const mysqlDB = require('mysql');
+
 
 async function setDB() {
   const con = await mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "root",
-    database: "mydb",
   });
 
-  // const con = mysql.createConnection({
-  //     host: "localhost",
-  //     user: "root",
-  //     password: "root"
-  //   });
-
   await con.execute("CREATE DATABASE IF NOT EXISTS mydb");
+
+
+  await con.execute("USE mydb");
 
   await con.execute(`CREATE TABLE IF NOT EXISTS users(
         id int AUTO_INCREMENT,
@@ -207,7 +205,7 @@ async function verifyPassword(username, password){
   }
 }
 
-setDB();
+//setDB();
 //createAdmin("admin","admin");
 
 

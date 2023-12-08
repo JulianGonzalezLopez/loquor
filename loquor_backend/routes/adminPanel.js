@@ -3,13 +3,6 @@ const path = require("path");
 const {createUser, modifyUser, deleteUser, getUsers} = require("../db_connections.js");
 
 const router = express.Router();
-const currentDirectory = __dirname;
-
-let parentDirectory = path.resolve(currentDirectory, "../..");
-
-router.get("/",(req,res)=>{
-    res.sendFile(parentDirectory + "/loquor_frontend/adminPanel.html")
-})
 
 router.get("/users", async (req,res)=>{
     try{
@@ -33,7 +26,7 @@ router.post("/users", async (req,res)=>{
     catch(error){
         console.error("FALLÓ");
     }
-    res.redirect("/adminPanel");
+    res.redirect("/html/adminPanel.html");
 });
 
 router.put("/users", async (req,res)=>{ 

@@ -7,10 +7,6 @@ const currentDirectory = __dirname;
 const parentDirectory = path.resolve(currentDirectory, "../..");
 const {verifyPassword} = require("../db_connections.js");
 
-router.get("/",(req,res)=>{
-    res.sendFile(parentDirectory + "/loquor_frontend/login.html")
-})
-
 router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÁ VACIO
     const {username, password} = req.body;
     const correctPassword = await verifyPassword(username,password);

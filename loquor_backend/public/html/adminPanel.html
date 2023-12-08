@@ -173,6 +173,31 @@
       </section>
     </main>
     <script>
+
+      const createUser = document.getElementById("createUser");
+      createUser.addEventListener("submit",(e)=>{
+        e.preventDefault();
+        e.preventDefault();
+        let object = {};
+        let formData = new FormData(createUser);
+        console.log("form data " + formData);
+        formData.forEach((value, key) => (object[key] = value));
+        let json = JSON.stringify(object);
+        console.log(json);
+
+        fetch("/adminPanel/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+          },
+          body: json,
+        })
+          .then((res) => res.json())
+          .then((res) => console.log(res));
+      })
+
+
       const modifyUser = document.getElementById("modifyUser");
       modifyUser.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -187,6 +212,7 @@
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
           },
           body: json,
         })
@@ -212,6 +238,7 @@
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
           },
           body: json,
         });
@@ -220,7 +247,13 @@
       const listaUsuarios = document.getElementById("lista-usuarios");
       const btnCargar = document.getElementById("cargar-usuarios-btn");
       btnCargar.addEventListener("click", () => {
-        fetch("/adminPanel/users")
+        fetch("/adminPanel/users",{
+        method:"get",
+          headers : {
+            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+          }
+        }
+        )
           .then((res) => {
             if (!res.ok) {
               throw new Error(`Network response was not ok: ${res.status}`);

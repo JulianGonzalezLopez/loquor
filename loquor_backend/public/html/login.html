@@ -21,8 +21,7 @@
             let formData = new FormData(loginForm);
             formData.forEach((value, key) => (object[key] = value));
             let json = JSON.stringify(object);
-            console.log("json a enviar");
-            console.log(json);
+            sessionStorage.setItem("username",object["username"]);
             fetch("/login", {
                 headers: {
                     "Content-Type": "application/json",
@@ -32,6 +31,7 @@
             })
             .then(res=>res.json())
             .then(res=>{
+                
                 console.log("json");
                 console.log(json)
                 fetch("/authorize",{
@@ -44,12 +44,16 @@
                 .then(res=>res.json())
                 .then(json=>{
                     console.log("Token: " + json.token);
-                    localStorage.setItem("token",json.token);
+                    sessionStorage.setItem("token",json.token);
+                    console.log(sessionStorage.getItem("token"));
                     fetch("/",{
                         method:"get",
                         headers:{
-                            "Authorization" : localStorage.getItem("token") ? localStorage.getItem("token") : ""
+                            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
                         }
+                    })
+                    .then(res=>{
+                        window.location.href = 'http://localhost:3000/html/chat.html';
                     })
                 })
                 
