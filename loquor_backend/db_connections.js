@@ -22,7 +22,7 @@ async function setDB() {
         PRIMARY KEY(id)
     )`);
 
-  await con.execute(`CREATE TABLE IF NOT EXISTS message(
+  await con.execute(`CREATE TABLE IF NOT EXISTS messages(
         id int AUTO_INCREMENT,
         creator_id int NOT NULL,
         recipient_id int NOT NULL,
@@ -204,6 +204,7 @@ async function verifyPassword(username, password){
     throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
   }
 }
+
 
 //setDB();
 //createAdmin("admin","admin");

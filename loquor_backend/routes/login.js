@@ -1,10 +1,7 @@
 //REQUIRES
 const express = require("express");
-const path = require("path");
 //CONSTANTS
 const router = express.Router();
-const currentDirectory = __dirname;
-const parentDirectory = path.resolve(currentDirectory, "../..");
 const {verifyPassword} = require("../db_connections.js");
 
 router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÁ VACIO

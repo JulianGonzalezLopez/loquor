@@ -142,7 +142,9 @@
 
             </ul>
             <form id="form" action="">
-                <input type="text" name="" id="input" placeholder="Write, Scribit, Escribe" autocomplete="off">
+                <input type="hidden" id="user_id" name="user_id" value="" />
+                <input type="hidden" id="recipient_username" name="recipient_username" value="" />
+                <input type="text" name="input" id="input" placeholder="Write, Scribit, Escribe" autocomplete="off">
                 <button id="send-btn">Enviar</button>
             </form>
         </section>
@@ -155,8 +157,12 @@
         const messages = document.getElementById("messages");
         const users = document.getElementById("users");
         const currentChat = document.getElementById("currentChat");
+        const userIdInput = document.getElementById("user_id");
+        const recipientUsernameInput = document.getElementById("recipient_username");
 
         window.addEventListener("load",()=>{
+            userIdInput.value = sessionStorage.getItem("user_id");
+            sessionStorage.setItem("currentChat","");
             fetch("/adminPanel/users",{
                 method:"get",
                 headers:{
@@ -176,8 +182,33 @@
                 const listItem = document.createElement("button");
                 listItem.textContent = user.username;
                 listItem.addEventListener("click",(e)=>{
+                    messages.innerHTML = "";
                     sessionStorage.setItem("currentChat",user.username);
                     currentChat.innerText = user.username;
+                    recipientUsernameInput.value = user.username;
+                    const url = "/chat?" + new URLSearchParams({
+                        user_id:sessionStorage.getItem("user_id"),
+                        recipient_username: user.username
+                    });
+                    console.log(url);
+                    fetch(url,{
+                        headers: {
+                        "Content-Type": "application/json",
+                        "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                      }
+                    })
+                    .then(res=>res.json())
+                    .then(resJSON=>{
+                        console.log(resJSON);
+                        const msgContainer = document.createDocumentFragment();
+                        for(msg of resJSON){
+                            let newMsg = document.createElement("li");
+                            newMsg.textContent = msg.body;
+                            msgContainer.appendChild(newMsg);
+                        }
+                        messages.appendChild(msgContainer);
+                    });
+
                 });
                 users.appendChild(listItem);
                 });
@@ -189,16 +220,40 @@
         form.addEventListener("submit",(e)=>{
             e.preventDefault();
 
+            let object = {};
+            let formData = new FormData(form);
+            formData.forEach((value, key) => (object[key] = value));
+            let json = JSON.stringify(object);
+            console.log(json);
+            fetch("/chat",{
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                      },
+                    method:"post",
+                    body:json
+            });
+
             if(input.value){
-                socket.emit("chat message", input.value);
+                socket.emit("chat message", {body: input.value, sender: sessionStorage.getItem("user_id"), sender_username: sessionStorage.username, recipient_username: sessionStorage.getItem("currentChat")});
+                let message = document.createElement("li");
+                message.textContent = input.value;
+                messages.appendChild(message);
                 input.value = "";
-            }
+            };
         })
         socket.on("chat message", (msg)=>{
-            let message = document.createElement("li");
-            message.innerText = msg;
-            message.classList.add("msg");
-            messages.appendChild(message);
+            console.log("NUEVO MENSAJE ENVIANDOSE A TODO EL MUNDO");
+            console.log(msg);
+            console.log(sessionStorage.user_id);
+            console.log(msg.user_id);
+            if((sessionStorage.user_id == msg.sender || sessionStorage.username ==  msg.recipient_username) && sessionStorage.currentChat == msg.sender_username){
+                console.log("Es para mi!");
+                let message = document.createElement("li");
+                message.innerText = msg.body;
+                message.classList.add("msg");
+                messages.appendChild(message);
+            }
         })
 
 
