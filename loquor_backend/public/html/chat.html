@@ -5,129 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loquor</title>
     <script src="/socket.io/socket.io.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
-            background-color: #f2f2f2;
-        }
-
-        main {
-            width: 90%;
-            display: grid;
-            grid-template-columns: 30% 70%;
-            grid-template-rows: 1fr;
-            grid-column-gap: 0px;
-            grid-row-gap: 0px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            
-        }
-        
-        /* Estilos para la sección de chat */
-        #chat {
-            text-align: center;
-            grid-area: 1 / 2 / 2 / 3;
-            height: 90vh;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        #messages {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-            flex: 1;
-            overflow-y: scroll;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-            max-height: 100%;
-
-        }
-
-        #messages::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        #messages::-webkit-scrollbar-thumb {
-            background-color: #6fa8dc; /* Color de la barra deslizante */
-            border-radius: 4px;
-        }
-        
-        #messages::-webkit-scrollbar-track {
-            background-color: #c8e1f9; /* Color del fondo de la barra de desplazamiento */
-            border-radius: 4px;
-        }
-        
-        /* Para navegadores basados en Firefox */
-        #messages {
-            scrollbar-width: thin;
-        }
-        
-        #messages::-moz-scrollbar {
-            width: 8px;
-        }
-        
-        #messages::-moz-scrollbar-thumb {
-            background-color: #6fa8dc; /* Color de la barra deslizante en Firefox */
-            border-radius: 4px;
-        }
-        
-        #messages::-moz-scrollbar-track {
-            background-color: #c8e1f9; /* Color del fondo de la barra de desplazamiento en Firefox */
-            border-radius: 4px;
-        }
-
-        .msg{
-            max-width: 95%;
-            margin-left: 5px;    
-            overflow-wrap: break-word; /* Permite el quiebre de palabras */ 
-            overflow-wrap: break-word; /* Permite el quiebre de palabras */
-            word-wrap: break-word; /* Para navegadores antiguos */
-        }
-
-        #form {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-        
-        #input {
-            padding: 8px;
-            margin-right: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            width: 70%;
-        }
-        
-        #send-btn {
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: none;
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        #send-btn:hover {
-            background-color: #0056b3;
-        }
-        
-    </style>
+    <link rel="stylesheet" href="/css/chat-styles.css">
 </head>
 <body>
     <main>
@@ -136,8 +14,10 @@
 
             </div>
         </section>
-        <section id="chat">
-            <h4 id="currentChat"></h4>
+        <section id="chat-section">
+            <div id="currentChat-container">
+                <h4 id="currentChat"></h4>
+            </div>
             <ul id="messages">
 
             </ul>

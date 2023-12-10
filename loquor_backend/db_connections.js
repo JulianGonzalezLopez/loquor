@@ -178,7 +178,7 @@ async function createAdmin(username, password) {
 }
 
 async function verifyPassword(username, password){
-  console.log(username + " : " + password);
+  console.log("Usuario y pass a verificar: " + username + " : " + password);
   try {
     const con = await mysql.createConnection({
       host: "localhost",
@@ -189,18 +189,25 @@ async function verifyPassword(username, password){
 
     const query = "SELECT * FROM users where username = ?";
     const [rows, fields] = await con.execute(query,[username]);
-    console.log(rows);
+    if(rows.length == 0){
+      throw {
+        "en":"This user does not exists",
+        "es":"Este usuario no existe"
+      }
+    }
     await con.end();
     if(rows[0].password === password){
       return rows[0];
     }
     else{
-      return false;
+      return {
+        "en":"Wrong password",
+        "es":"Contraseña incorrecta"
+      };
     }
-    
 
   } catch (error) {
-    console.error("Error al verificar password:", error);
+    console.error(error);
     throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
   }
 }

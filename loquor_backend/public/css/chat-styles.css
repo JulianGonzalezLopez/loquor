@@ -1,0 +1,171 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f2f2f2;
+}
+
+main {
+  width: 90%;
+  display: grid;
+  grid-template-columns: 30% 70%;
+  grid-template-rows: 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  
+}
+
+
+#users-section{
+  /*border: 1px solid #ccc;*/
+  border-radius: 4px;
+  width: 90%;
+  height: 90vh;
+  border-radius: 4px;
+}
+
+#users{
+
+}
+
+#users > button {
+  width: 100%;
+  margin-top: .05rem;
+  margin-bottom: .1rem;
+  padding: .5rem;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+#users > button:nth-child(1){
+  margin-top: 0;
+}
+
+#users > button:hover {
+  background-color: #0056b3;
+}
+
+/* Estilos para la sección de chat */
+#chat-section {
+  text-align: center;
+  grid-area: 1 / 2 / 2 / 3;
+  height: 90vh;
+  width: 90%;
+  position: relative;
+  display: flex;
+  justify-content: start;
+  flex-direction: column;
+}
+
+#currentChat-container{
+  margin-top: 0;
+  height: 5%;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#currentChat{
+  margin: auto;
+}
+
+#messages {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  flex: 1;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-height: 100%;
+  height: 90%;
+}
+
+#messages::-webkit-scrollbar, #users::-webkit-scrollbar{
+  width: 8px;
+}
+
+#messages::-webkit-scrollbar-thumb, #users::-webkit-scrollbar-thumb{
+  background-color: #6fa8dc; /* Color de la barra deslizante */
+  border-radius: 4px;
+}
+
+#messages::-webkit-scrollbar-track, #users::-webkit-scrollbar-track {
+  background-color: #c8e1f9; /* Color del fondo de la barra de desplazamiento */
+  border-radius: 4px;
+}
+
+/* Para navegadores basados en Firefox */
+#messages {
+  scrollbar-width: thin;
+}
+
+#messages::-moz-scrollbar {
+  width: 8px;
+}
+
+#messages::-moz-scrollbar-thumb {
+  background-color: #6fa8dc; /* Color de la barra deslizante en Firefox */
+  border-radius: 4px;
+}
+
+#messages::-moz-scrollbar-track {
+  background-color: #c8e1f9; /* Color del fondo de la barra de desplazamiento en Firefox */
+  border-radius: 4px;
+}
+
+.msg{
+  max-width: 95%;
+  margin-left: 5px;    
+  overflow-wrap: break-word; /* Permite el quiebre de palabras */ 
+  overflow-wrap: break-word; /* Permite el quiebre de palabras */
+  word-wrap: break-word; /* Para navegadores antiguos */
+}
+
+#form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+#input {
+  padding: 8px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 70%;
+}
+
+#send-btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#send-btn:hover {
+  background-color: #0056b3;
+}

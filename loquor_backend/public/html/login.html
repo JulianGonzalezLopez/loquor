@@ -5,14 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
-    <form id="login-form">
-        <label for="username">Username: <input id="username" name="username" type="text"/></label>
-        <label for="password">Password: <input id="password" name="password" type="password"/></label>
-        <button>Enviar</button>
-      </form>
-    </body>
+    <main>
+        <section id="form-section">
+            <form id="login-form">
+                <label for="username">Username: <input id="username" name="username" type="text"/></label>
+                <label for="password">Password: <input id="password" name="password" type="password"/></label>
+                <button>Enviar</button>
+            </form>
+        </section>
+        <section id="text-section">
+            <h1>Loquor</h1>
+            <p>Enterprise oriented chat</p>
+        </section>
+    </main>
+</body>
     <script>
         const loginForm = document.getElementById("login-form");
         loginForm.addEventListener("submit",(e)=>{
@@ -31,6 +40,10 @@
             })
             .then(res=>res.json())
             .then(res=>{
+                if(res["id"] == undefined){
+                    window.alert(res["es"]);
+                    return null;
+                }
                 sessionStorage.setItem("user_id",res["id"]);
                 sessionStorage.setItem("username",res["username"]);
                 fetch("/authorize",{
@@ -46,6 +59,7 @@
                     sessionStorage.setItem("token",json.token);
                     console.log(sessionStorage.getItem("token"));
                     window.location.href = 'http://localhost:3000/html/chat.html';
+                    //window.location.href = "http://192.168.0.9:3000/html/chat.html";
                 })
                 
             });

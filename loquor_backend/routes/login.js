@@ -6,14 +6,22 @@ const {verifyPassword} = require("../db_connections.js");
 
 router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÁ VACIO
     const {username, password} = req.body;
-    const correctPassword = await verifyPassword(username,password);
-    console.log("Resultado de verificacion");
-    console.log(correctPassword);
-    if(correctPassword){
-        console.log("Positivo");
-        res.json(correctPassword);
+    console.log(req.body);
+    try{
+        if(password === '' || username === ''){
+            throw {
+                "en":"You forgot to pass data",
+                "es":"Olvidaste pasar informacion"
+            }
+        }
+        const result = await verifyPassword(username,password);
+        console.log("Resultado de verificacion");
+        console.log(result);
+        res.json(result);
     }
-    res.end();
+    catch(err){
+        res.json(err);
+    }
 })
 
 module.exports = router;
