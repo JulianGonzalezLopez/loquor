@@ -17,3 +17,6 @@ Propuesta de un chat en red interna, inspirado en http://www.igniterealtime.org/
 - Socket.io
 - Http
 
+##Example of usage / Ejemplo de uso
+
+![2023-12-10-17-31-23](https://github.com/JulianGonzalezLopez/loquor/assets/94023125/62ef8d25-3535-4a17-908d-ac9cff0ef1aa)
