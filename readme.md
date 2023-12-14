@@ -21,6 +21,19 @@ Propuesta de un chat en red interna, inspirado en http://www.igniterealtime.org/
 - MySql
 - MySql2
 
+## Endpoints
+
+### Login
+- POST /login: Verifies if its a valid user / Verifica si el usuario es valido
+### Chat
+- POST /chat: Sends a message given the content in the body of the request / Envia el mensaje segun el contenido del body
+- GET /chat: Obtains sent messages between 2 users / Obtiene los mensajes desde la base de datos entre 2 usuarios
+### Authorize
+- POST /Authorize: Generates and returns a jwt / Genera y retorna un jwt #IT WILL CHANGE / BE DELETED#
+### AdminPanel #IT WILL CHANGE / BE DELETED#
+### Admin #IT WILL CHANGE / BE DELETED#
+
+
 ## Example of usage / Ejemplo de uso
 This is an early stage example of usage of Loquor, I expect to improve the user interface even more (eliminate / hide chat related stuff when a chat has not been clicked)
 ![2023-12-10-17-31-23](https://github.com/JulianGonzalezLopez/loquor/assets/94023125/62ef8d25-3535-4a17-908d-ac9cff0ef1aa)
