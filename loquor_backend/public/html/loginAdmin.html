@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+    <main>
+        <section id="form-section">
+            <form id="login-form">
+                <label for="username">Username: <input id="username" name="username" type="text"/></label>
+                <label for="password">Password: <input id="password" name="password" type="password"/></label>
+                <button>Enviar</button>
+            </form>
+        </section>
+        <section id="text-section">
+            <h1>Loquor for administrators</h1>
+            <p>Administrator panel</p>
+        </section>
+    </main>
+</body>
+    <script>
+        const loginForm = document.getElementById("login-form");
+        loginForm.addEventListener("submit",(e)=>{
+            e.preventDefault();
+            let object = {};
+            let formData = new FormData(loginForm);
+            formData.forEach((value, key) => (object[key] = value));
+            let json = JSON.stringify(object);
+            console.log(json);
+            fetch("/admin", {
+                headers: {
+                    "Content-Type": "application/json",
+                  },
+                method:"post",
+                body:json
+            })
+            .then(res=>res.json())
+            .then(res=>{
+                if(res["is_admin"] == false){
+                    window.alert(res["es"]);
+                    return null;
+                }
+                else{
+                    console.log("!listo");
+                    console.log(res);
+                    sessionStorage.setItem("admin_token",res.token);
+                    console.log(sessionStorage.getItem("admin_token")); 
+                    window.location.href = 'http://localhost:3000/html/adminPanel.html';
+                    //window.location.href = "http://192.168.0.9:3000/html/adminPanel.html";
+                }
+
+            });       
+        })
+    </script>
+</html>

@@ -12,6 +12,7 @@ const chat = require("./routes/chat.js");
 const login = require("./routes/login.js");
 const authorize = require("./routes/authorize");
 const authMiddleware = require("./authMiddleware");
+const admin = require("./routes/admin");
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
 const currentDirectory = __dirname;
@@ -43,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //Routes free of authorization methods
 app.use("/authorize", authorize);
+app.use("/admin",admin);
 app.use("/login", login);
 
 app.use(authMiddleware);
@@ -50,11 +52,6 @@ app.use(authMiddleware);
 //Auth required routes
 app.use("/adminPanel", adminPanel);
 app.use("/chat",chat);
-
-//home
-app.get("/",(req,res)=>{
-    res.sendFile(parentDirectory + "/loquor_frontend/index.html")
-})
 
 //LISTENER
 server.listen(port,()=>{

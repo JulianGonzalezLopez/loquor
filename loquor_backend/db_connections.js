@@ -1,6 +1,6 @@
 const mysql = require("mysql2/promise");
 const mysqlDB = require('mysql');
-
+const jwt = require("jsonwebtoken");
 
 async function setDB() {
   const con = await mysql.createConnection({
@@ -36,7 +36,7 @@ async function setDB() {
   console.log(res);
 }
 
-async function createUser(username, password) {
+async function createUser(username, password,is_admin) {
   try {
     if (!username || !password) {
       throw new Error(
@@ -57,9 +57,14 @@ async function createUser(username, password) {
     if(rows.length > 0){
       return null;
     }
-
-    query = "INSERT INTO users(username, password) VALUES (?, ?)";
-    [rows, fields] = await con.execute(query, [username, password]);
+    if(is_admin == "on"){
+      query = "INSERT INTO users(username, password, role) VALUES (?, ?, ?)";
+      [rows, fields] = await con.execute(query, [username, password, "admin"]);
+    }
+    else{
+      query = "INSERT INTO users(username, password) VALUES (?, ?)";
+      [rows, fields] = await con.execute(query, [username, password]);
+    }
     console.log("Filas afectadas:", rows.affectedRows);
     await con.end();
   } catch (error) {
@@ -212,9 +217,65 @@ async function verifyPassword(username, password){
   }
 }
 
+async function verifyPasswordAndRole(username, password){
+  console.log("Usuario y pass a verificar: " + username + " : " + password);
+  try {
+    const con = await mysql.createConnection({
+      host: "localhost",
+      user: "root",
+      password: "root",
+      database: "mydb",
+    });
+
+    const query = "SELECT * FROM users where username = ?";
+    const [rows, fields] = await con.execute(query,[username]);
+    if(rows.length == 0){
+      throw {
+        "en":"This user does not exists",
+        "es":"Este usuario no existe"
+      }
+    }
+    await con.end();
+    console.log(rows[0]);
+    
+    if(rows[0].password === password){
+      if(rows[0].role == "admin"){ 
+          const token = jwt.sign({user:username}, process.env.ADMIN_SECRET, {expiresIn:"1h"});
+          let response = {
+            "token": token,
+            "en":"You are  an admin",
+            "es":"Sos un administrador",
+            "is_admin": true
+          };
+          console.log(response);
+          return response;
+      }
+      else{
+        return {
+          "token":false,
+          "en":"You are not an admin",
+          "es":"No sos un administrador",
+          "is_admin": false
+        };
+      }
+    }
+    else{
+      return {
+        "en":"Wrong password",
+        "es":"Contraseña incorrecta"
+      };
+    }
+
+  } catch (error) {
+    console.error(error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+}
+
+
 
 //setDB();
 //createAdmin("admin","admin");
 
 
-module.exports = {createUser, modifyUser, deleteUser, getUsers, verifyPassword};
+module.exports = {createUser, modifyUser, deleteUser, getUsers, verifyPassword, verifyPasswordAndRole};

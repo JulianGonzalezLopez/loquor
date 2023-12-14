@@ -137,6 +137,7 @@
           <label for="password"
             >Password: <input id="password" name="password" type="password"
           /></label>
+          <label>Admin? <input type="checkbox" name="is_admin" id="is_admin"></label>
           <button>Enviar</button>
         </form>
       </section>
@@ -189,7 +190,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+            "Authorization" : sessionStorage.getItem("admin_token") ? sessionStorage.getItem("admin_token") : ""
           },
           body: json,
         })
@@ -212,7 +213,7 @@
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+            "Authorization" : sessionStorage.getItem("admin_token") ? sessionStorage.getItem("admin_token") : ""
           },
           body: json,
         })
@@ -238,12 +239,14 @@
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+            "Authorization" : sessionStorage.getItem("admin_token") ? sessionStorage.getItem("admin_token") : ""
           },
           body: json,
         });
       });
 
+
+      //open
       const listaUsuarios = document.getElementById("lista-usuarios");
       const btnCargar = document.getElementById("cargar-usuarios-btn");
       btnCargar.addEventListener("click", () => {

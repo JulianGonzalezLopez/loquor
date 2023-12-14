@@ -1,5 +1,6 @@
 const express = require("express");
-const path = require("path");
+
+const adminAuth = require("../authAdminMiddeware");
 const {createUser, modifyUser, deleteUser, getUsers} = require("../db_connections.js");
 
 const router = express.Router();
@@ -15,13 +16,15 @@ router.get("/users", async (req,res)=>{
         console.error("FALLÓ");
         res.end();
     }
-})
+});
+
+router.use(adminAuth);
 
 router.post("/users", async (req,res)=>{
     console.log(req.body);
-    const { username, password } = req.body;
+    const { username, password, is_admin } = req.body;
     try{
-        await createUser(username,password);
+        await createUser(username,password,is_admin);
     }
     catch(error){
         console.error("FALLÓ");
