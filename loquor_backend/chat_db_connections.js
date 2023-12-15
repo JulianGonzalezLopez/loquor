@@ -20,14 +20,14 @@ async function getMessages(user_id, username) {
       const [rows, fields] = await con.execute(query,[user_id,other_user_id.id,user_id, other_user_id.id])
       .catch(err=>{
         throw err;
-      })
+      });
+
+      await con.end();
       return rows;
   
     } catch (error) {
       console.error("Error en la eliminacion del usuario:", error);
       throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
-    } finally {
-      await con.end();
     }
     
   }

@@ -21,6 +21,9 @@ router.get("/", async (req,res)=>{
     const { user_id, recipient_username} = req.query;
     try{
         const messages = await getMessages(user_id,recipient_username);
+        console.log("MENSAJES");
+        console.log(messages);
+        console.log("MENSAJES");
         res.json(messages);
     }
     catch(err){
