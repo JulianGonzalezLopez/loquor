@@ -5,23 +5,27 @@ const {getMessages,sendMessage} = require("../chat_db_connections");
 const router = express.Router();
 
 router.post("/", async (req,res)=>{
-    console.log("--------------------");
-    console.log(req.body);
-    console.log("--------------------");
-    await sendMessage(req.body.user_id, req.body.recipient_username, req.body.input);
-    res.end();
-
+    try{
+        await sendMessage(req.body.user_id, req.body.recipient_username, req.body.input);
+        res.status(200).send({
+            "en":"Message sent",
+            "es":"Mensaje enviado"
+        });
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
 });
 
 router.get("/", async (req,res)=>{
     const { user_id, recipient_username} = req.query;
-    console.log("QUERY");
-    console.log(req.query);
-    console.log("QUERY");
-    const messages = await getMessages(user_id,recipient_username);
-    console.log("mensajes obtenidos");
-    //console.log(messages);
-    res.json(messages);
-})
+    try{
+        const messages = await getMessages(user_id,recipient_username);
+        res.json(messages);
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
+});
 
 module.exports = router;
