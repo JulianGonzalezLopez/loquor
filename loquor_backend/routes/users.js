@@ -1,11 +1,12 @@
 const express = require("express");
 
-const adminAuth = require("../authAdminMiddeware");
+const adminAuth = require("../authAdminMiddeware.js");
 const {createUser, modifyUser, deleteUser, getUsers} = require("../db_connections.js");
 
 const router = express.Router();
 
-router.get("/users", async (req,res)=>{
+//Tengo que ver como voy a cubrir este endpoint
+router.get("/", async (req,res)=>{
     try{
         console.log("ok");
         let users = await getUsers();
@@ -20,19 +21,19 @@ router.get("/users", async (req,res)=>{
 
 router.use(adminAuth);
 
-router.post("/users", async (req,res)=>{
+router.post("/", async (req,res)=>{
     console.log(req.body);
     const { username, password, is_admin } = req.body;
     try{
-        await createUser(username,password,is_admin);
+        let response = await createUser(username,password,is_admin);
+        res.json(response);
     }
     catch(error){
         console.error("FALLÓ");
     }
-    res.redirect("/html/adminPanel.html");
 });
 
-router.put("/users", async (req,res)=>{ 
+router.put("/", async (req,res)=>{ 
     console.log(req.body);
     const { oldusername, username, password } = req.body;
     try{
@@ -45,17 +46,18 @@ router.put("/users", async (req,res)=>{
     res.redirect("/");
 });
 
-router.delete("/users", async (req,res)=>{ 
+router.delete("/", async (req,res)=>{ 
+    console.log("que esta pasando");
     console.log(req.body);
     const { username } = req.body;
     try{
         console.log("ESTO ES UN PUTO => " + username);
-        await deleteUser(username);
+        let response = await deleteUser(username);
+        res.json(response);
     }
     catch(error){
         console.error("FALLÓ");
     }
-    res.redirect("/");
 });
 
 module.exports = router;

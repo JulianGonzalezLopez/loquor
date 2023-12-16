@@ -7,7 +7,7 @@ const http = require("http");
 const bodyParser = require('body-parser');
 const dotenv = require("dotenv").config();
 //INTERNAL REQUIRES
-const adminPanel = require("./routes/adminPanel.js");
+const users = require("./routes/users.js");
 const chat = require("./routes/chat.js");
 const login = require("./routes/login.js");
 const authorize = require("./routes/authorize");
@@ -43,6 +43,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Routes free of authorization methods
+app.use("/users", users); //This has admin related authorization methods
 app.use("/authorize", authorize);
 app.use("/admin",admin);
 app.use("/login", login);
@@ -50,7 +51,6 @@ app.use("/login", login);
 app.use(authMiddleware);
 
 //Auth required routes
-app.use("/adminPanel", adminPanel);
 app.use("/chat",chat);
 
 //LISTENER

@@ -38,22 +38,22 @@
                 method:"post",
                 body:json
             })
-            .then(res=>res.json())
             .then(res=>{
-                if(res["is_admin"] == false){
-                    window.alert(res["es"]);
-                    return null;
+                if(res.ok){
+                    return res.json();
                 }
                 else{
+                    alert(res.status);
+                }
+            })
+            .then(res=>{
                     console.log("!listo");
                     console.log(res);
                     sessionStorage.setItem("admin_token",res.token);
                     console.log(sessionStorage.getItem("admin_token")); 
                     window.location.href = 'http://localhost:3000/html/adminPanel.html';
                     //window.location.href = "http://192.168.0.9:3000/html/adminPanel.html";
-                }
-
-            });       
+                });       
         })
     </script>
 </html>

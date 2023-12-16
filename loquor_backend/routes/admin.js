@@ -27,10 +27,15 @@ router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÃ
       const result = await verifyPasswordAndRole(username,password);
       console.log("Resultado de verificacion");
       console.log(result);
-      res.json(result);
+      if(result.is_admin == true){
+        res.status(200).send(result);
+      }
+      else{
+        res.status(400).send(result);
+      }
   }
   catch(err){
-      res.json(err);
+      res.status(400).json(err);
   }
 });
 

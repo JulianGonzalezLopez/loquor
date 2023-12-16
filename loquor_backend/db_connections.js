@@ -2,6 +2,23 @@ const mysql = require("mysql2/promise");
 const mysqlDB = require('mysql');
 const jwt = require("jsonwebtoken");
 
+
+async function deleteTables(){
+  const con = await mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "mydb"
+  });
+  console.log(await con.execute("show tables"));
+
+  await con.execute("DROP TABLE messages")
+  .then(()=>{
+    con.execute("DROP TABLE users");
+  });
+}
+
+
 async function setDB() {
   const con = await mysql.createConnection({
     host: "localhost",
@@ -22,6 +39,13 @@ async function setDB() {
         PRIMARY KEY(id)
     )`);
 
+  try{
+    await createUser(process.env.ADMIN_USERNAME, process.env.ADMIN_PASSWORD, "on");
+  }
+  catch(err){
+    console.log(err);
+  }
+
   await con.execute(`CREATE TABLE IF NOT EXISTS messages(
         id int AUTO_INCREMENT,
         creator_id int NOT NULL,
@@ -29,8 +53,8 @@ async function setDB() {
         received boolean DEFAULT FALSE,
         body varchar(248),
         PRIMARY KEY(id),
-        FOREIGN KEY(creator_id) REFERENCES users(id),
-        FOREIGN KEY(recipient_id) REFERENCES users(id)
+        FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
     )`);
   let res = await con.execute("SHOW TABLES");
   console.log(res);
@@ -55,7 +79,11 @@ async function createUser(username, password,is_admin) {
     let [rows, fields] = await con.execute(query, [username]);
     console.log(rows + " igualdades");
     if(rows.length > 0){
-      return null;
+      throw {
+        "en":"This user already exists",
+        "es":"Este usuario ya existe"
+      };
+
     }
     if(is_admin == "on"){
       query = "INSERT INTO users(username, password, role) VALUES (?, ?, ?)";
@@ -157,30 +185,6 @@ async function getUsers() {
   }
 }
 
-async function createAdmin(username, password) {
-  try {
-    if (!username || !password) {
-      throw new Error(
-        "Se requieren tanto el nombre de usuario como la contraseña."
-      );
-    }
-
-    const con = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "root",
-      database: "mydb",
-    });
-
-    const query = "INSERT INTO users(username, password, role) VALUES (?, ?, 'admin')";
-    const [rows, fields] = await con.execute(query, [username, password]);
-    console.log("Filas afectadas:", rows.affectedRows);
-    await con.end();
-  } catch (error) {
-    console.error("Error en la creación de usuario:", error);
-    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
-  }
-}
 
 async function verifyPassword(username, password){
   console.log("Usuario y pass a verificar: " + username + " : " + password);
@@ -238,8 +242,14 @@ async function verifyPasswordAndRole(username, password){
     await con.end();
     console.log(rows[0]);
     
-    if(rows[0].password === password){
-      if(rows[0].role == "admin"){ 
+    if(rows[0].password !== password){
+      throw {
+        "en":"Wrong password",
+        "es":"Contraseña incorrecta"
+      };
+    }
+
+    if(rows[0].role == "admin"){ 
           const token = jwt.sign({user:username}, process.env.ADMIN_SECRET, {expiresIn:"1h"});
           let response = {
             "token": token,
@@ -258,13 +268,6 @@ async function verifyPasswordAndRole(username, password){
           "is_admin": false
         };
       }
-    }
-    else{
-      return {
-        "en":"Wrong password",
-        "es":"Contraseña incorrecta"
-      };
-    }
 
   } catch (error) {
     console.error(error);
@@ -273,9 +276,8 @@ async function verifyPasswordAndRole(username, password){
 }
 
 
-
-//setDB();
-//createAdmin("admin","admin");
+//deleteTables();
+setDB();
 
 
 module.exports = {createUser, modifyUser, deleteUser, getUsers, verifyPassword, verifyPasswordAndRole};

@@ -43,7 +43,7 @@
         window.addEventListener("load",()=>{
             userIdInput.value = sessionStorage.getItem("user_id");
             sessionStorage.setItem("currentChat","");
-            fetch("/adminPanel/users",{
+            fetch("/users",{
                 method:"get",
                 headers:{
                             "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
@@ -135,9 +135,6 @@
                 messages.appendChild(message);
             }
         })
-
-
-
     </script>
 </body>
 </html>

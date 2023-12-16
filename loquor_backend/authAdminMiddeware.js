@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 module.exports = function middleware (req,res,next){
     console.log("Tiene token?");
     console.log(req.headers["authorization"] ? "Si" : "No");
-    if(typeof req.headers["authorization"] !== "undefined"){
+    if(req.headers["authorization"]){
         console.log("iok");
       jwt.verify(req.headers["authorization"], process.env.ADMIN_SECRET, (err,authData)=>{
         console.log(authData)

@@ -186,7 +186,7 @@
         let json = JSON.stringify(object);
         console.log(json);
 
-        fetch("/adminPanel/users", {
+        fetch("/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -209,7 +209,7 @@
         let json = JSON.stringify(object);
         console.log(json);
 
-        fetch("/adminPanel/users", {
+        fetch("/users", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -235,14 +235,16 @@
         console.log(formData);
         console.log(object);
 
-        fetch("/adminPanel/users", {
+        fetch("/users", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
             "Authorization" : sessionStorage.getItem("admin_token") ? sessionStorage.getItem("admin_token") : ""
           },
           body: json,
-        });
+        })
+        .then(res=>res.json())
+        .then(res=>console.log(res));
       });
 
 
@@ -250,7 +252,7 @@
       const listaUsuarios = document.getElementById("lista-usuarios");
       const btnCargar = document.getElementById("cargar-usuarios-btn");
       btnCargar.addEventListener("click", () => {
-        fetch("/adminPanel/users",{
+        fetch("/users",{
         method:"get",
           headers : {
             "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
