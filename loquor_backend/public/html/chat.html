@@ -39,6 +39,7 @@
         const currentChat = document.getElementById("currentChat");
         const userIdInput = document.getElementById("user_id");
         const recipientUsernameInput = document.getElementById("recipient_username");
+        const chatSection = document.getElementById("chat-section");
 
         window.addEventListener("load",()=>{
             userIdInput.value = sessionStorage.getItem("user_id");
@@ -62,6 +63,7 @@
                 const listItem = document.createElement("button");
                 listItem.textContent = user.username;
                 listItem.addEventListener("click",(e)=>{
+                    chatSection.classList.add("visible");
                     messages.innerHTML = "";
                     sessionStorage.setItem("currentChat",user.username);
                     currentChat.innerText = user.username;

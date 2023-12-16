@@ -6,7 +6,6 @@ const {verifyPassword} = require("../db_connections.js");
 
 router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÃ VACIO
     const {username, password} = req.body;
-    console.log(req.body);
     try{
         if(password === '' || username === ''){
             throw {
@@ -16,11 +15,10 @@ router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÃ
         }
         const result = await verifyPassword(username,password);
         console.log("Resultado de verificacion");
-        console.log(result);
         res.json(result);
     }
     catch(err){
-        res.json(err);
+        res.status(400).send(err);
     }
 })
 

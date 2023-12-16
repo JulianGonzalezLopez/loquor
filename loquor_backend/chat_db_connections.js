@@ -48,6 +48,13 @@ async function getMessages(user_id, username) {
         };
       };
 
+      if(user_id == "" || user_id == null){
+        throw{
+          "en":"Seems like you tried to break the program, bad boy. The user id can't be empty",
+          "es": "Parece que quisiste romper el programa, chico malo. El id de usuario no puede estar vacio"
+        }
+      }
+
       const other_user_id = await getUserId(recipient_username)
       .catch(err=>{
         throw err;

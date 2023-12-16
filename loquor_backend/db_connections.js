@@ -180,7 +180,7 @@ async function getUsers() {
     return rows;
 
   } catch (error) {
-    console.error("Error en la eliminacion del usuario:", error);
+    console.error("Error en la obtencion de usuarios:", error);
     throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
   }
 }
@@ -195,6 +195,22 @@ async function verifyPassword(username, password){
       password: "root",
       database: "mydb",
     });
+
+
+    if(username == "" || username == null){
+      throw{
+        "en": "The username can't be empty",
+        "es": "El username no puede estar vacio"
+      }
+    }
+
+    if(password == "" || password == null){
+      throw{
+        "en": "The password can't be empty",
+        "es": "La contraseña no puede estar vacia"
+      }
+    }
+
 
     const query = "SELECT * FROM users where username = ?";
     const [rows, fields] = await con.execute(query,[username]);

@@ -35,7 +35,8 @@ main {
 }
 
 #users{
-
+  overflow-y: scroll;
+  height: 100%;
 }
 
 #users > button {
@@ -69,6 +70,7 @@ main {
   display: flex;
   justify-content: start;
   flex-direction: column;
+  visibility:hidden;
 }
 
 #currentChat-container{
@@ -168,4 +170,8 @@ main {
 
 #send-btn:hover {
   background-color: #0056b3;
+}
+
+.visible{
+  visibility:visible !important;
 }
