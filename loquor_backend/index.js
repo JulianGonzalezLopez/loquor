@@ -42,15 +42,17 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//Routes free of authorization methods
+
 app.use("/users", users); //This has admin related authorization methods
+
+//Routes free of authorization methods
 app.use("/authorize", authorize);
 app.use("/admin",admin);
 app.use("/login", login);
 
-app.use(authMiddleware);
+app.use(authMiddleware); //User auth middleware
 
-//Auth required routes
+//User auth requires routes
 app.use("/chat",chat);
 
 //LISTENER
