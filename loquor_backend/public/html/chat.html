@@ -57,7 +57,7 @@
                 return res.json();
             })
             .then((resJSON) => {
-                console.log(resJSON);
+                //console.log(resJSON);
                 users.innerHTML = "";
                 resJSON.forEach((user) => {
                 const listItem = document.createElement("button");
@@ -85,6 +85,12 @@
                         const msgContainer = document.createDocumentFragment();
                         for(msg of resJSON){
                             let newMsg = document.createElement("li");
+                            if(msg.creator_id == sessionStorage.getItem("user_id")){
+                                newMsg.classList.add("msg");
+                            }
+                            else{
+                                newMsg.classList.add("foreign-msg");
+                            }
                             newMsg.textContent = msg.body;
                             msgContainer.appendChild(newMsg);
                         }
@@ -119,6 +125,7 @@
             if(input.value){
                 socket.emit("chat message", {body: input.value, sender: sessionStorage.getItem("user_id"), sender_username: sessionStorage.username, recipient_username: sessionStorage.getItem("currentChat")});
                 let message = document.createElement("li");
+                message.classList.add("msg");
                 message.textContent = input.value;
                 messages.appendChild(message);
                 input.value = "";
@@ -133,7 +140,7 @@
                 console.log("Es para mi!");
                 let message = document.createElement("li");
                 message.innerText = msg.body;
-                message.classList.add("msg");
+                message.classList.add("foreign-msg");
                 messages.appendChild(message);
             }
         })

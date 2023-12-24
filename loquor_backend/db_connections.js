@@ -5,10 +5,10 @@ const jwt = require("jsonwebtoken");
 
 async function deleteTables(){
   const con = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "root",
-    database: "mydb"
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE
   });
   console.log(await con.execute("show tables"));
 
@@ -21,15 +21,15 @@ async function deleteTables(){
 
 async function setDB() {
   const con = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "root",
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
   });
 
-  await con.execute("CREATE DATABASE IF NOT EXISTS mydb");
+  await con.execute(`CREATE DATABASE IF NOT EXISTS ${process.env.DATABASE}`);
 
 
-  await con.execute("USE mydb");
+  await con.execute(`USE ${process.env.DATABASE}`);
 
   await con.execute(`CREATE TABLE IF NOT EXISTS users(
         id int AUTO_INCREMENT,
@@ -69,10 +69,10 @@ async function createUser(username, password,is_admin) {
     }
 
     const con = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "root",
-      database: "mydb",
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
     });
 
     let query = "SELECT * FROM users WHERE username = ?";
@@ -108,10 +108,10 @@ async function modifyUser(oldusername, username, password) {
     }
 
     const con = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "root",
-      database: "mydb",
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
     });
 
     let rows, fields;
@@ -146,10 +146,10 @@ async function deleteUser(username) {
     }
 
     const con = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "root",
-      database: "mydb",
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
     });
 
     const query = "DELETE FROM users WHERE username = ?";
@@ -166,10 +166,10 @@ async function deleteUser(username) {
 async function getUsers() {
   try {
     const con = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "root",
-      database: "mydb",
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
     });
 
     const query = "SELECT * FROM users";
@@ -190,10 +190,10 @@ async function verifyPassword(username, password){
   console.log("Usuario y pass a verificar: " + username + " : " + password);
   try {
     const con = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "root",
-      database: "mydb",
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
     });
 
 
@@ -241,10 +241,10 @@ async function verifyPasswordAndRole(username, password){
   console.log("Usuario y pass a verificar: " + username + " : " + password);
   try {
     const con = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "root",
-      database: "mydb",
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
     });
 
     const query = "SELECT * FROM users where username = ?";

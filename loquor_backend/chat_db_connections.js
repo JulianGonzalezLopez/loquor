@@ -5,10 +5,10 @@ const mysqlDB = require('mysql');
 async function getMessages(user_id, username) {
     try {
       const con = await mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "mydb",
+        host: process.env.HOST,
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
       });
   
       const other_user_id = await getUserId(username)
@@ -35,10 +35,10 @@ async function getMessages(user_id, username) {
   async function sendMessage(user_id, recipient_username, message) {
     try {
       const con = await mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "root",
-        database: "mydb",
+        host: process.env.HOST,
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
       });
   
       if(message == "" || message == null){
@@ -80,10 +80,10 @@ async function getMessages(user_id, username) {
   async function getUserId(recipient_username){
     try {
         const con = await mysql.createConnection({
-          host: "localhost",
-          user: "root",
-          password: "root",
-          database: "mydb",
+          host: process.env.HOST,
+          user: process.env.USER,
+          password: process.env.PASSWORD,
+          database: process.env.DATABASE
         });
     
         if(recipient_username == ""){
