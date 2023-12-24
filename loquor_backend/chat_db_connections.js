@@ -32,6 +32,36 @@ async function getMessages(user_id, username) {
     
   }
 
+  async function getLastMessage(user_id, username) {
+    try {
+      const con = await mysql.createConnection({
+        host: process.env.HOST,
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
+      });
+  
+      const other_user_id = await getUserId(username)
+      .catch(err=>{
+        throw err;
+      });
+
+      const query = "SELECT * FROM messages where (creator_id = ? and recipient_id = ?) or (recipient_id = ? and creator_id = ?) ORDER BY ID DESC LIMIT 1";
+      const [rows, fields] = await con.execute(query,[user_id,other_user_id.id,user_id, other_user_id.id])
+      .catch(err=>{
+        throw err;
+      });
+
+      await con.end();
+      return rows;
+  
+    } catch (error) {
+      console.error("Error en la eliminacion del usuario:", error);
+      throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+    }
+    
+  }
+
   async function sendMessage(user_id, recipient_username, message) {
     try {
       const con = await mysql.createConnection({
@@ -109,4 +139,4 @@ async function getMessages(user_id, username) {
   }
 
 
-  module.exports = {getMessages, sendMessage};
+  module.exports = {getMessages, sendMessage, getLastMessage};

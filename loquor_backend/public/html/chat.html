@@ -94,6 +94,12 @@
                             newMsg.textContent = msg.body;
                             msgContainer.appendChild(newMsg);
                         }
+                        if(resJSON[0] == undefined){
+                            sessionStorage.setItem("lastMsg","");
+                        }
+                        else{
+                            sessionStorage.setItem("lastMsg",resJSON[resJSON.length-1].body);
+                        }
                         messages.appendChild(msgContainer);
                     });
 
@@ -120,29 +126,54 @@
                       },
                     method:"post",
                     body:json
-            });
+            })
+            .then((res)=>{
+                console.log(res);
+                console.log("ESTE ESTES ESTE");
+                console.log(json);
+                let aux = JSON.parse(json);
+                console.log(aux);
+                
+                socket.emit("newMsg");
+            })
 
             if(input.value){
-                socket.emit("chat message", {body: input.value, sender: sessionStorage.getItem("user_id"), sender_username: sessionStorage.username, recipient_username: sessionStorage.getItem("currentChat")});
-                let message = document.createElement("li");
-                message.classList.add("msg");
-                message.textContent = input.value;
-                messages.appendChild(message);
                 input.value = "";
             };
-        })
-        socket.on("chat message", (msg)=>{
-            console.log("NUEVO MENSAJE ENVIANDOSE A TODO EL MUNDO");
-            console.log(msg);
-            console.log(sessionStorage.user_id);
-            console.log(msg.user_id);
-            if((sessionStorage.user_id == msg.sender || sessionStorage.username ==  msg.recipient_username) && sessionStorage.currentChat == msg.sender_username){
-                console.log("Es para mi!");
-                let message = document.createElement("li");
-                message.innerText = msg.body;
-                message.classList.add("foreign-msg");
-                messages.appendChild(message);
-            }
+        });
+        
+        socket.on("newMsg",()=>{
+            const url = "/chat/last?" + new URLSearchParams({
+                        user_id:sessionStorage.getItem("user_id"),
+                        recipient_username: sessionStorage.getItem("currentChat")
+                    });
+                    console.log(url);
+                    fetch(url,{
+                        headers: {
+                        "Content-Type": "application/json",
+                        "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                      }
+                    })
+                    .then(res=>res.json())
+                    .then(resJSON=>{
+                        console.log(resJSON[0]);
+                        console.log(sessionStorage.getItem("lastMsg"));
+                        console.log(sessionStorage.getItem("lastMsg") != resJSON.body);
+                        if(sessionStorage.getItem("lastMsg") != resJSON[0].body && true){
+                            let newMsg = document.createElement("li");
+                            if(resJSON[0].creator_id == sessionStorage.getItem("user_id")){
+                                newMsg.classList.add("msg");
+                                console.log("es mio");
+                            }
+                            else{
+                                newMsg.classList.add("foreign-msg");
+                                console.log("no es mio");
+                            }
+                            newMsg.textContent = resJSON[0].body;
+                            messages.appendChild(newMsg);
+                            sessionStorage.setItem("lastMsg",resJSON[0].body);
+                        }
+                    });
         })
     </script>
 </body>

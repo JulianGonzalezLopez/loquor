@@ -1,6 +1,6 @@
 //REQUIRES
 const express = require("express");
-const {getMessages,sendMessage} = require("../chat_db_connections");
+const {getMessages,sendMessage,getLastMessage} = require("../chat_db_connections");
 //CONSTANTS
 const router = express.Router();
 
@@ -27,5 +27,16 @@ router.get("/", async (req,res)=>{
         res.status(400).send(err);
     }
 });
+
+router.get("/last", async (req,res)=>{
+    const { user_id, recipient_username} = req.query;
+    try{
+        const message = await getLastMessage(user_id,recipient_username);
+        res.json(message);
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
+})
 
 module.exports = router;

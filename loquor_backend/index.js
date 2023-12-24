@@ -28,11 +28,14 @@ const io = new socket.Server(server, {
 io.on("connection",(socket)=>{
     //console.log("A connection has been made");
 
-    socket.on("chat message",(msg)=>{
-        console.log("Msg: " + msg); //Displays de msg in the console
-        io.emit("chat message", msg); //Broadcasts the msg to all users
+    // socket.on("chat message",(msg)=>{
+    //     console.log("Msg: " + msg); //Displays de msg in the console
+    //     io.emit("chat message", msg); //Broadcasts the msg to all users
+    // })
+    socket.on("newMsg",()=>{
+        io.emit("newMsg");
     })
-    
+
 })
 
 //APP'S BODY
