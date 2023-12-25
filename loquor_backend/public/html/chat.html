@@ -98,7 +98,7 @@
                             sessionStorage.setItem("lastMsg","");
                         }
                         else{
-                            sessionStorage.setItem("lastMsg",resJSON[resJSON.length-1].body);
+                            sessionStorage.setItem("lastMsg",resJSON[resJSON.length-1].id);
                         }
                         messages.appendChild(msgContainer);
                     });
@@ -159,7 +159,7 @@
                         console.log(resJSON[0]);
                         console.log(sessionStorage.getItem("lastMsg"));
                         console.log(sessionStorage.getItem("lastMsg") != resJSON.body);
-                        if(sessionStorage.getItem("lastMsg") != resJSON[0].body && true){
+                        if(sessionStorage.getItem("lastMsg") != resJSON[0].id){
                             let newMsg = document.createElement("li");
                             if(resJSON[0].creator_id == sessionStorage.getItem("user_id")){
                                 newMsg.classList.add("msg");
