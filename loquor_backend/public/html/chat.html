@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,10 @@
     <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="/css/chat-styles.css">
 </head>
+
 <body>
     <main>
-        <section id="users-section">   
+        <section id="users-section">
             <div id="users">
 
             </div>
@@ -29,7 +31,7 @@
             </form>
         </section>
     </main>
-        
+
     <script>
         const socket = io(); //We don't require to specify the url due to the fact that it realices that the server has 1 active
         const form = document.getElementById("form");
@@ -41,77 +43,94 @@
         const recipientUsernameInput = document.getElementById("recipient_username");
         const chatSection = document.getElementById("chat-section");
 
-        window.addEventListener("load",()=>{
+        window.addEventListener("load", () => {
             userIdInput.value = sessionStorage.getItem("user_id");
-            sessionStorage.setItem("currentChat","");
-            fetch("/users",{
-                method:"get",
-                headers:{
-                            "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
-                        }
-            })
-            .then((res) => {
-                if (!res.ok) {
-                throw new Error(`Network response was not ok: ${res.status}`);
+            sessionStorage.setItem("currentChat", "");
+            fetch("/users", {
+                method: "get",
+                headers: {
+                    "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
                 }
-                return res.json();
             })
-            .then((resJSON) => {
-                //console.log(resJSON);
-                users.innerHTML = "";
-                resJSON.forEach((user) => {
-                const listItem = document.createElement("button");
-                listItem.textContent = user.username;
-                listItem.addEventListener("click",(e)=>{
-                    chatSection.classList.add("visible");
-                    messages.innerHTML = "";
-                    sessionStorage.setItem("currentChat",user.username);
-                    currentChat.innerText = user.username;
-                    recipientUsernameInput.value = user.username;
-                    const url = "/chat?" + new URLSearchParams({
-                        user_id:sessionStorage.getItem("user_id"),
-                        recipient_username: user.username
-                    });
-                    console.log(url);
-                    fetch(url,{
-                        headers: {
-                        "Content-Type": "application/json",
-                        "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
-                      }
-                    })
-                    .then(res=>res.json())
-                    .then(resJSON=>{
-                        console.log(resJSON);
-                        const msgContainer = document.createDocumentFragment();
-                        for(msg of resJSON){
-                            let newMsg = document.createElement("li");
-                            if(msg.creator_id == sessionStorage.getItem("user_id")){
-                                newMsg.classList.add("msg");
-                            }
-                            else{
-                                newMsg.classList.add("foreign-msg");
-                            }
-                            newMsg.textContent = msg.body;
-                            msgContainer.appendChild(newMsg);
-                        }
-                        if(resJSON[0] == undefined){
-                            sessionStorage.setItem("lastMsg","");
-                        }
-                        else{
-                            sessionStorage.setItem("lastMsg",resJSON[resJSON.length-1].id);
-                        }
-                        messages.appendChild(msgContainer);
-                    });
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error(`Network response was not ok: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then((resJSON) => {
+                    //console.log(resJSON);
+                    users.innerHTML = "";
+                    resJSON.forEach((user) => {
+                        const listItem = document.createElement("button");
+                        listItem.textContent = user.username;
+                        listItem.addEventListener("click", (e) => {
+                            chatSection.classList.add("visible");
+                            messages.innerHTML = "";
+                            sessionStorage.setItem("currentChat", user.username);
+                            currentChat.innerText = user.username;
+                            recipientUsernameInput.value = user.username;
+                            const url = "/chat?" + new URLSearchParams({
+                                user_id: sessionStorage.getItem("user_id"),
+                                recipient_username: user.username
+                            });
+                            console.log(url);
+                            fetch(url, {
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                                }
+                            })
+                                .then(res => res.json())
+                                .then(resJSON => {
+                                    console.log(resJSON);
+                                    const msgContainer = document.createDocumentFragment();
+                                    for (msg of resJSON) {
+                                        let newMsg = document.createElement("li");
+                                        newMsg.classList.add("formato-msg");
+                                        let newMsgDate = document.createElement("small");
+                                        newMsgDate.classList.add("formato-msg-date");
+                                        const fecha = new Date(msg.date);
+                                        const año = fecha.getFullYear();
+                                        const mes = fecha.getMonth() + 1; // Los meses son indexados desde 0
+                                        const dia = fecha.getDate();
+                                        const horas = fecha.getHours();
+                                        const minutos = fecha.getMinutes();
+                                        const segundos = fecha.getSeconds();
+                                        newMsgDate.textContent = `${año}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')} ${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
 
-                });
-                users.appendChild(listItem);
-                });
-            })
-            .catch((error) => console.error("Error fetching data:", error));
+                                        if (msg.creator_id == sessionStorage.getItem("user_id")) {
+                                            newMsg.classList.add("msg");
+                                        }
+                                        else {
+                                            newMsg.classList.add("foreign-msg");
+                                        }
+                                        const msgContent = document.createElement("p");
+                                        msgContent.classList.add("formato-msg-texto")
+                                        msgContent.textContent = msg.body;
+                                        //newMsg.textContent = msg.body;
+                                        newMsg.appendChild(msgContent);
+                                        newMsg.appendChild(newMsgDate);
+                                        msgContainer.appendChild(newMsg);
+                                    }
+                                    if (resJSON[0] == undefined) {
+                                        sessionStorage.setItem("lastMsg", "");
+                                    }
+                                    else {
+                                        sessionStorage.setItem("lastMsg", resJSON[resJSON.length - 1].id);
+                                    }
+                                    messages.appendChild(msgContainer);
+                                });
+
+                        });
+                        users.appendChild(listItem);
+                    });
+                })
+                .catch((error) => console.error("Error fetching data:", error));
         })
-        
-        
-        form.addEventListener("submit",(e)=>{
+
+
+        form.addEventListener("submit", (e) => {
             e.preventDefault();
 
             let object = {};
@@ -119,62 +138,77 @@
             formData.forEach((value, key) => (object[key] = value));
             let json = JSON.stringify(object);
             console.log(json);
-            fetch("/chat",{
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
-                      },
-                    method:"post",
-                    body:json
+            fetch("/chat", {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                },
+                method: "post",
+                body: json
             })
-            .then((res)=>{
-                console.log(res);
-                console.log("ESTE ESTES ESTE");
-                console.log(json);
-                let aux = JSON.parse(json);
-                console.log(aux);
-                
-                socket.emit("newMsg");
-            })
+                .then((res) => {
+                    console.log(res);
+                    console.log("ESTE ESTES ESTE");
+                    console.log(json);
+                    let aux = JSON.parse(json);
+                    console.log(aux);
 
-            if(input.value){
+                    socket.emit("newMsg");
+                })
+
+            if (input.value) {
                 input.value = "";
             };
         });
-        
-        socket.on("newMsg",()=>{
+
+        socket.on("newMsg", () => {
             const url = "/chat/last?" + new URLSearchParams({
-                        user_id:sessionStorage.getItem("user_id"),
-                        recipient_username: sessionStorage.getItem("currentChat")
-                    });
-                    console.log(url);
-                    fetch(url,{
-                        headers: {
-                        "Content-Type": "application/json",
-                        "Authorization" : sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
-                      }
-                    })
-                    .then(res=>res.json())
-                    .then(resJSON=>{
-                        console.log(resJSON[0]);
-                        console.log(sessionStorage.getItem("lastMsg"));
-                        console.log(sessionStorage.getItem("lastMsg") != resJSON.body);
-                        if(sessionStorage.getItem("lastMsg") != resJSON[0].id){
-                            let newMsg = document.createElement("li");
-                            if(resJSON[0].creator_id == sessionStorage.getItem("user_id")){
-                                newMsg.classList.add("msg");
-                                console.log("es mio");
-                            }
-                            else{
-                                newMsg.classList.add("foreign-msg");
-                                console.log("no es mio");
-                            }
-                            newMsg.textContent = resJSON[0].body;
-                            messages.appendChild(newMsg);
-                            sessionStorage.setItem("lastMsg",resJSON[0].body);
+                user_id: sessionStorage.getItem("user_id"),
+                recipient_username: sessionStorage.getItem("currentChat")
+            });
+            console.log(url);
+            fetch(url, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                }
+            })
+                .then(res => res.json())
+                .then(resJSON => {
+                    console.log(resJSON[0]);
+                    console.log(sessionStorage.getItem("lastMsg"));
+                    console.log(sessionStorage.getItem("lastMsg") != resJSON.body);
+                    if (sessionStorage.getItem("lastMsg") != resJSON[0].id) {
+                        let newMsg = document.createElement("li");
+                        newMsg.classList.add("formato-msg");
+                        let newMsgDate = document.createElement("small");
+                        newMsgDate.classList.add("formato-msg-date");
+                        const fecha = new Date(resJSON[0].date);
+                        const año = fecha.getFullYear();
+                        const mes = fecha.getMonth() + 1; // Los meses son indexados desde 0
+                        const dia = fecha.getDate();
+                        const horas = fecha.getHours();
+                        const minutos = fecha.getMinutes();
+                        const segundos = fecha.getSeconds();
+                        newMsgDate.textContent = `${año}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')} ${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                        if (resJSON[0].creator_id == sessionStorage.getItem("user_id")) {
+                            newMsg.classList.add("msg");
                         }
-                    });
+                        else {
+                            newMsg.classList.add("foreign-msg");
+                        }
+                        const msgContent = document.createElement("p");
+                        msgContent.classList.add("formato-msg-texto")
+                        msgContent.textContent = resJSON[0].body;
+                        //newMsg.textContent = msg.body;
+                        newMsg.appendChild(msgContent);
+                        newMsg.appendChild(newMsgDate);
+                        messages.appendChild(newMsg);
+                        sessionStorage.setItem("lastMsg", resJSON[0].id);
+                    }
+                });
         })
     </script>
 </body>
+
 </html>

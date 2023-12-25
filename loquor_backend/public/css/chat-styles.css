@@ -171,6 +171,23 @@ main {
   margin-left: .5rem;
 }
 
+
+.formato-msg{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  padding: 0;
+}
+
+.formato-msg > *{
+  margin: .5rem;
+}
+
+.formato-msg-texto { grid-area: 1 / 1 / 2 / 4; }
+.formato-msg-date { grid-area: 2 / 3 / 3 / 4; }
+
 #form {
   display: flex;
   justify-content: center;
