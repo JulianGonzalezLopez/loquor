@@ -52,6 +52,7 @@ async function setDB() {
         recipient_id int NOT NULL,
         received boolean DEFAULT FALSE,
         body varchar(248),
+        date DATETIME,
         PRIMARY KEY(id),
         FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE

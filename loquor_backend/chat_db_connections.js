@@ -92,7 +92,7 @@ async function getMessages(user_id, username) {
 
       console.log(user_id,other_user_id.id,message);
 
-      const query = "INSERT INTO messages(creator_id, recipient_id, body) VALUES(?,?,?)";
+      const query = "INSERT INTO messages(creator_id, recipient_id, body, date) VALUES(?,?,?,NOW())";
       const [rows, fields] = await con.execute(query,[user_id,other_user_id.id, message]);
       console.log("Filas afectadas:", rows.affectedRows);
       console.log(rows);
