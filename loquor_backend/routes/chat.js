@@ -1,6 +1,6 @@
 //REQUIRES
 const express = require("express");
-const {getMessages,sendMessage,getLastMessage} = require("../chat_db_connections");
+const { getMessages,sendMessage,getLastMessage, getNotSeenMessages, setMessagesToSeen} = require("../chat_db_connections");
 //CONSTANTS
 const router = express.Router();
 
@@ -33,6 +33,35 @@ router.get("/last", async (req,res)=>{
     try{
         const message = await getLastMessage(user_id,recipient_username);
         res.json(message);
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
+});
+
+router.get("/notseen", async (req,res)=>{
+    const { user_id, recipient_username} = req.query;
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    try{
+        console.log("ESTOY ACA");
+        const message = await getNotSeenMessages(user_id,recipient_username);
+        res.json(message);
+    }
+    catch(err){
+        res.status(400).send(err);
+    }
+});
+
+router.put("/seen", async (req,res)=>{
+    const { user_id, recipient_username} = req.query;
+    let date = new Date();
+    const formatedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+    console.log(date);
+    try{
+        
+        const message = await setMessagesToSeen(user_id,recipient_username,formatedDate);
+        res.json(message);
+        //res.json(date);
     }
     catch(err){
         res.status(400).send(err);

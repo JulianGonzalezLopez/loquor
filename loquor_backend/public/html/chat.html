@@ -64,13 +64,36 @@
                     resJSON.forEach((user) => {
                         const listItem = document.createElement("button");
                         listItem.textContent = user.username;
+                        const url = "/chat/notseen?" + new URLSearchParams({
+                            user_id: sessionStorage.getItem("user_id"),
+                            recipient_username: user.username
+                        });
+
+                        fetch(url, {
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                            }
+                        })
+                            .then((res) => {
+                                return res.json();
+                            })
+                            .then((resJSON) => {
+                                let spanNotSeen = document.createElement("span");
+                                spanNotSeen.textContent = resJSON.length;
+                                listItem.appendChild(spanNotSeen);
+                                console.log("Cantidad de mensajes no vistos: " + resJSON);
+                            });
+
+
+
                         listItem.addEventListener("click", (e) => {
                             chatSection.classList.add("visible");
                             messages.innerHTML = "";
                             sessionStorage.setItem("currentChat", user.username);
                             currentChat.innerText = user.username;
                             recipientUsernameInput.value = user.username;
-                            const url = "/chat?" + new URLSearchParams({
+                            let url = "/chat?" + new URLSearchParams({
                                 user_id: sessionStorage.getItem("user_id"),
                                 recipient_username: user.username
                             });
@@ -121,6 +144,19 @@
                                     }
                                     messages.appendChild(msgContainer);
                                 });
+                            url = "/chat/seen?" + new URLSearchParams({
+                                user_id: sessionStorage.getItem("user_id"),
+                                recipient_username: user.username
+                            });
+                            console.log(url);
+                            fetch(url, {
+                                method:"PUT",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                                }
+                            })
+                            .then(res => res.json())
 
                         });
                         users.appendChild(listItem);

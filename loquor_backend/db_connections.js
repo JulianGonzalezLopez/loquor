@@ -50,7 +50,7 @@ async function setDB() {
         id int AUTO_INCREMENT,
         creator_id int NOT NULL,
         recipient_id int NOT NULL,
-        received boolean DEFAULT FALSE,
+        seen boolean DEFAULT FALSE,
         body varchar(248),
         date DATETIME,
         PRIMARY KEY(id),

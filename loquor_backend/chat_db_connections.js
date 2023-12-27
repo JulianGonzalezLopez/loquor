@@ -62,6 +62,73 @@ async function getMessages(user_id, username) {
     
   }
 
+  async function getNotSeenMessages(user_id, username) {
+    try {
+      const con = await mysql.createConnection({
+        host: process.env.HOST,
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
+      });
+  
+      const other_user_id = await getUserId(username)
+      .catch(err=>{
+        throw err;
+      });
+
+      const query = "SELECT * FROM messages where ((creator_id = ? and recipient_id = ?) or (recipient_id = ? and creator_id = ?)) AND seen = 0";
+      const [rows, fields] = await con.execute(query,[user_id,other_user_id.id,user_id, other_user_id.id])
+      .catch(err=>{
+        throw err;
+      });
+      console.log(rows);
+      console.log("CANTIDAD: " + rows.length);
+      await con.end();
+      return rows;
+  
+    } catch (error) {
+      console.error("Error en la eliminacion del usuario:", error);
+      throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+    }
+    
+  }
+
+  async function setMessagesToSeen(user_id, username, time) {
+    console.log("ESTO FALLA AHORA");
+    console.log(user_id, username, time);
+    try {
+      const con = await mysql.createConnection({
+        host: process.env.HOST,
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
+      });
+  
+      const other_user_id = await getUserId(username)
+      .catch(err=>{
+        throw err;
+      });
+
+      let query = "UPDATE messages SET seen = TRUE where creator_id = ? AND recipient_id = ? AND date <= ?";
+      [rows, fields] = await con.execute(query, [other_user_id.id, user_id, time])
+      .catch(err=>{
+        throw err;
+      });
+
+      console.log(rows);
+      console.log("CANTIDAD: " + rows.length);
+      await con.end();
+      return rows;
+  
+    } catch (error) {
+      console.error("Error en la actualizar el estado de los mensajes:", error);
+      throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+    }
+    
+  }
+
+
+
   async function sendMessage(user_id, recipient_username, message) {
     try {
       const con = await mysql.createConnection({
@@ -139,4 +206,4 @@ async function getMessages(user_id, username) {
   }
 
 
-  module.exports = {getMessages, sendMessage, getLastMessage};
+  module.exports = {getMessages, sendMessage, getLastMessage, getNotSeenMessages, setMessagesToSeen};
