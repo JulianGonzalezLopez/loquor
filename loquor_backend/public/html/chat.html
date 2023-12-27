@@ -64,6 +64,7 @@
                     resJSON.forEach((user) => {
                         const listItem = document.createElement("button");
                         listItem.textContent = user.username;
+                        let spanNotSeen = document.createElement("span");
                         const url = "/chat/notseen?" + new URLSearchParams({
                             user_id: sessionStorage.getItem("user_id"),
                             recipient_username: user.username
@@ -79,8 +80,8 @@
                                 return res.json();
                             })
                             .then((resJSON) => {
-                                let spanNotSeen = document.createElement("span");
-                                spanNotSeen.textContent = resJSON.length;
+                                ;        
+                                spanNotSeen.textContent = resJSON.length > 0 ? " " + resJSON.length : " 0";
                                 listItem.appendChild(spanNotSeen);
                                 console.log("Cantidad de mensajes no vistos: " + resJSON);
                             });
@@ -90,6 +91,7 @@
                         listItem.addEventListener("click", (e) => {
                             chatSection.classList.add("visible");
                             messages.innerHTML = "";
+                            spanNotSeen.textContent = " 0";
                             sessionStorage.setItem("currentChat", user.username);
                             currentChat.innerText = user.username;
                             recipientUsernameInput.value = user.username;
