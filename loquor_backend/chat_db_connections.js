@@ -206,4 +206,4 @@ async function getMessages(user_id, username) {
   }
 
 
-  module.exports = {getMessages, sendMessage, getLastMessage, getNotSeenMessages, setMessagesToSeen};
+  module.exports = {getMessages, sendMessage, getUserId, getLastMessage, getNotSeenMessages, setMessagesToSeen};

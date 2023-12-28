@@ -42,6 +42,7 @@
         const userIdInput = document.getElementById("user_id");
         const recipientUsernameInput = document.getElementById("recipient_username");
         const chatSection = document.getElementById("chat-section");
+        let currentRoom;
 
         window.addEventListener("load", () => {
             userIdInput.value = sessionStorage.getItem("user_id");
@@ -160,6 +161,9 @@
                             })
                             .then(res => res.json())
 
+
+                            socket.emit("joinRoom", sessionStorage.getItem("user_id"), user.username);
+
                         });
                         users.appendChild(listItem);
                     });
@@ -198,6 +202,10 @@
                 input.value = "";
             };
         });
+
+        socket.on("connected",(res)=>{
+            console.log(res);
+        })
 
         socket.on("newMsg", () => {
             const url = "/chat/last?" + new URLSearchParams({

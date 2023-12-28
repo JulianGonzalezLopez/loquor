@@ -13,6 +13,7 @@ const login = require("./routes/login.js");
 const authorize = require("./routes/authorize");
 const authMiddleware = require("./authMiddleware");
 const admin = require("./routes/admin");
+const {getUserId} = require("./chat_db_connections.js");
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
 const currentDirectory = __dirname;
@@ -26,12 +27,36 @@ const io = new socket.Server(server, {
 
 //Subscribed events of the server using webSockets
 io.on("connection",(socket)=>{
-    //console.log("A connection has been made");
 
-    // socket.on("chat message",(msg)=>{
-    //     console.log("Msg: " + msg); //Displays de msg in the console
-    //     io.emit("chat message", msg); //Broadcasts the msg to all users
-    // })
+    socket.on("joinRoom", async (uid,ouu)=>{
+        
+        let ouidA = await getUserId(ouu)
+        .catch(err=>{
+            throw err;
+        })
+
+        let ouid = ouidA.id;
+        
+        console.log("ZZZZZZZZZZZZZZZZZZZZZ");
+        console.log(uid);
+        console.log(ouid);
+        console.log(ouu);
+        console.log("ZZZZZZZZZZZZZZZZZZZZZ");
+        socket.join(uid+"_"+ouid);
+        socket.join(ouid+"_"+uid);
+
+        io.to(uid+"_"+ouid).emit("connected",{
+            "message":`You have succesfully connected to ${uid}_${ouid}`,
+            "room": `${uid}_${ouid}`
+
+        });
+        io.to(ouid+"_"+uid).emit("connected",{
+            "message":`You have succesfully connected to ${ouid}_${uid}`,
+            "room": `${ouid}_${uid}`
+        });
+    })
+
+
     socket.on("newMsg",()=>{
         io.emit("newMsg");
     })
