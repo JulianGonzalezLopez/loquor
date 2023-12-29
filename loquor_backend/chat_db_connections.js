@@ -205,5 +205,54 @@ async function getMessages(user_id, username) {
       }
   }
 
+  async function getUsername(id){
+    try {
+        const con = await mysql.createConnection({
+          host: process.env.HOST,
+          user: process.env.USER,
+          password: process.env.PASSWORD,
+          database: process.env.DATABASE
+        });
+    
+        if(id == ""){
+          throw {
+            "en":"You have to choose an user to send a message",
+            "es":"Tienes que seleccionar un usuario para enviar un mensaje"
+          };
+        }
 
-  module.exports = {getMessages, sendMessage, getUserId, getLastMessage, getNotSeenMessages, setMessagesToSeen};
+        const query = "SELECT username FROM users where id = ?";
+        const [rows, fields] = await con.execute(query,[id]);
+        console.log(rows);
+        await con.end();
+        return rows[0];
+
+      } catch (error) {
+          throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+      }
+  }
+
+  async function getUsersId(){
+    try {
+        const con = await mysql.createConnection({
+          host: process.env.HOST,
+          user: process.env.USER,
+          password: process.env.PASSWORD,
+          database: process.env.DATABASE
+        });
+
+
+        const query = "SELECT id FROM users";
+        const [rows, fields] = await con.execute(query);
+        console.log("ID USUARIOS A MENSAJEAR - getUsersId");
+        console.log(rows);
+        await con.end();
+        return rows;
+
+      } catch (error) {
+          throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+      }
+  }
+
+
+  module.exports = {getMessages, getUsername, getUserId, sendMessage, getUsersId, getLastMessage, getNotSeenMessages, setMessagesToSeen};

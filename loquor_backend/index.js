@@ -13,7 +13,7 @@ const login = require("./routes/login.js");
 const authorize = require("./routes/authorize");
 const authMiddleware = require("./authMiddleware");
 const admin = require("./routes/admin");
-const {getUserId} = require("./chat_db_connections.js");
+const {getUserId, getUsersId, getUsername} = require("./chat_db_connections.js");
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
 const currentDirectory = __dirname;
@@ -27,6 +27,48 @@ const io = new socket.Server(server, {
 
 //Subscribed events of the server using webSockets
 io.on("connection",(socket)=>{
+
+
+    socket.on("joinRooms", async (uid)=>{
+        let ouidsA = await getUsersId();
+        for(let ouidA of ouidsA){
+            //ALWAYS BIGGER NUMBER FIRST
+            if(uid > ouidA.id){
+                socket.join(uid+"_"+ouidA.id);
+                io.to(uid+"_"+ouidA.id).emit("connected",{
+                    "message":`You have succesfully connected to ${uid}_${ouidA.id}`,
+                    "room": `${uid}_${ouidA.id}`
+                });
+            }
+            else{
+                socket.join(ouidA.id+"_"+uid);
+                io.to(ouidA.id+"_"+uid).emit("connected",{
+                    "message":`You have succesfully connected to ${ouidA.id}_${uid}`,
+                    "room": `${ouidA.id}_${uid}`
+                });
+            }
+            console.log("ok");
+        }
+    })
+
+    socket.on("newMsgV2", async (uid,ouu)=>{
+        let ouidA = await getUserId(ouu)
+        .catch(err=>{
+            throw err;
+        });
+        
+        let uu = await getUsername(uid);
+        console.log(uu);
+
+        if(uid > ouidA.id){
+            io.to(uid+"_"+ouidA.id).emit("alert",uu.username);
+        }
+        else{
+            io.to(ouidA.id+"_"+uid).emit("alert",uu.username);
+        }
+        
+    });
+
 
     socket.on("joinRoom", async (uid,ouu)=>{
         

@@ -46,6 +46,7 @@
 
         window.addEventListener("load", () => {
             userIdInput.value = sessionStorage.getItem("user_id");
+            socket.emit("joinRooms", sessionStorage.getItem("user_id"));
             sessionStorage.setItem("currentChat", "");
             fetch("/users", {
                 method: "get",
@@ -65,6 +66,7 @@
                     resJSON.forEach((user) => {
                         const listItem = document.createElement("button");
                         listItem.textContent = user.username;
+                        listItem.classList.add("button-chat");
                         let spanNotSeen = document.createElement("span");
                         const url = "/chat/notseen?" + new URLSearchParams({
                             user_id: sessionStorage.getItem("user_id"),
@@ -81,15 +83,22 @@
                                 return res.json();
                             })
                             .then((resJSON) => {
-                                ;        
-                                spanNotSeen.textContent = resJSON.length > 0 ? " " + resJSON.length : " 0";
+                                let notseen = 0;
+                                for(let resmsg of resJSON){
+                                    if(resmsg.creator_id != sessionStorage.getItem("user_id")){
+                                        notseen++;
+                                    }
+                                }
+                                spanNotSeen.textContent = notseen > 0 ? " " + notseen : " 0";
                                 listItem.appendChild(spanNotSeen);
-                                console.log("Cantidad de mensajes no vistos: " + resJSON);
+                                console.log("Cantidad de mensajes no vistos: " + notseen);
                             });
 
 
 
                         listItem.addEventListener("click", (e) => {
+                            let aux = listItem.textContent.split(" ");
+                            listItem.textContent = aux[0] + " 0";
                             chatSection.classList.add("visible");
                             messages.innerHTML = "";
                             spanNotSeen.textContent = " 0";
@@ -153,16 +162,16 @@
                             });
                             console.log(url);
                             fetch(url, {
-                                method:"PUT",
+                                method: "PUT",
                                 headers: {
                                     "Content-Type": "application/json",
                                     "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
                                 }
                             })
-                            .then(res => res.json())
+                                .then(res => res.json())
 
 
-                            socket.emit("joinRoom", sessionStorage.getItem("user_id"), user.username);
+                            //socket.emit("joinRoom", sessionStorage.getItem("user_id"), user.username);
 
                         });
                         users.appendChild(listItem);
@@ -195,7 +204,8 @@
                     let aux = JSON.parse(json);
                     console.log(aux);
 
-                    socket.emit("newMsg");
+                    //socket.emit("newMsg");
+                    socket.emit("newMsgV2", sessionStorage.getItem("user_id"), sessionStorage.getItem("currentChat"));
                 })
 
             if (input.value) {
@@ -203,8 +213,114 @@
             };
         });
 
-        socket.on("connected",(res)=>{
+        socket.on("connected", (res) => {
             console.log(res);
+        })
+
+        socket.on("alert", (ouu) => {
+            console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+            console.log(ouu);
+            console.log(ouu == sessionStorage.getItem("currentChat") || ouu == sessionStorage.getItem("username"));
+            if (ouu == sessionStorage.getItem("currentChat") || ouu == sessionStorage.getItem("username")) {
+                let url = "/chat/last?" + new URLSearchParams({
+                    user_id: sessionStorage.getItem("user_id"),
+                    recipient_username: sessionStorage.getItem("currentChat")
+                });
+                console.log(url);
+                fetch(url, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                    }
+                })
+                    .then(res => res.json())
+                    .then(resJSON => {
+                        let newMsg = document.createElement("li");
+                        newMsg.classList.add("formato-msg");
+                        let newMsgDate = document.createElement("small");
+                        newMsgDate.classList.add("formato-msg-date");
+                        const fecha = new Date(resJSON[0].date);
+                        const año = fecha.getFullYear();
+                        const mes = fecha.getMonth() + 1; // Los meses son indexados desde 0
+                        const dia = fecha.getDate();
+                        const horas = fecha.getHours();
+                        const minutos = fecha.getMinutes();
+                        const segundos = fecha.getSeconds();
+                        newMsgDate.textContent = `${año}-${mes.toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')} ${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                        if (resJSON[0].creator_id == sessionStorage.getItem("user_id")) {
+                            newMsg.classList.add("msg");
+                        }
+                        else {
+                            newMsg.classList.add("foreign-msg");
+                        }
+                        const msgContent = document.createElement("p");
+                        msgContent.classList.add("formato-msg-texto")
+                        msgContent.textContent = resJSON[0].body;
+                        newMsg.appendChild(msgContent);
+                        newMsg.appendChild(newMsgDate);
+                        messages.appendChild(newMsg);
+                    });
+                url = "/chat/seen?" + new URLSearchParams({
+                    user_id: sessionStorage.getItem("user_id"),
+                    recipient_username: sessionStorage.getItem("currentChat")
+                });
+                console.log(url);
+                fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                    }
+                })
+                    .then(res => res.json())
+                    let chats = document.getElementsByClassName("button-chat");
+                for(let chat of chats){
+                    console.log(chat);
+                    console.log(chat.textContent);
+                }
+            }
+            else {
+                //LOGICA PARA ACTUALIZAR BOTON CON CANTIDAD DE MENSAJES SIN LEER
+                console.log("FUERA DE CHAT");
+                let chats = document.getElementsByClassName("button-chat");
+                for(let chat of chats){
+                    console.log(chat);
+                    console.log(chat.textContent);
+                    let affectedChat = chat.textContent;
+                    console.log("ESTO DE ACA SE NECESITA RAI NAU");
+                    
+                    console.log(ouu);
+                    let split = affectedChat.split(" ");
+                    console.log(split[0]);
+                    if(split[0] == ouu){    
+                        let url = "/chat/notseen?" + new URLSearchParams({
+                            user_id: sessionStorage.getItem("user_id"),
+                            recipient_username: ouu
+                        });
+
+                        fetch(url, {
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+                            }
+                        })
+                            .then((res) => {
+                                console.log(res);
+                                return res.json();
+                            })
+                            .then((resJSON) => {
+                                console.log("FINAL FINAL")
+                                console.log(resJSON);
+                                chat.textContent = ouu + " " + resJSON.length;
+                                console.log(chat.textContent);
+                                console.log("AAAAAAAA");
+                                console.log("Cantidad de mensajes no vistos: " + resJSON);
+                            });
+
+
+                    }
+                }
+            }
         })
 
         socket.on("newMsg", () => {
