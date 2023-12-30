@@ -69,6 +69,21 @@ io.on("connection",(socket)=>{
         
     });
 
+    socket.on("seen", async (uid,ouu, time)=>{
+        let ouidA = await getUserId(ouu)
+        .catch(err=>{
+            throw err;
+        });
+
+        if(uid > ouidA.id){
+            io.to(uid+"_"+ouidA.id).emit("seen",ouu,time);
+        }
+        else{
+            io.to(ouidA.id+"_"+uid).emit("seen",ouu,time);
+        }
+        
+    });
+
 
     socket.on("joinRoom", async (uid,ouu)=>{
         

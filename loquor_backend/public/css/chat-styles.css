@@ -187,6 +187,10 @@ main {
 
 .formato-msg-texto { grid-area: 1 / 1 / 2 / 4; }
 .formato-msg-date { grid-area: 2 / 3 / 3 / 4; }
+.formato-tick { 
+  grid-area: 2 / 1 / 3 / 2; 
+  text-align: start;
+}
 
 #form {
   display: flex;

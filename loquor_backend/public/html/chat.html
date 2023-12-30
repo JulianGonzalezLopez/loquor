@@ -61,7 +61,7 @@
                     return res.json();
                 })
                 .then((resJSON) => {
-                    //console.log(resJSON);
+                    
                     users.innerHTML = "";
                     resJSON.forEach((user) => {
                         const listItem = document.createElement("button");
@@ -84,8 +84,8 @@
                             })
                             .then((resJSON) => {
                                 let notseen = 0;
-                                for(let resmsg of resJSON){
-                                    if(resmsg.creator_id != sessionStorage.getItem("user_id")){
+                                for (let resmsg of resJSON) {
+                                    if (resmsg.creator_id != sessionStorage.getItem("user_id")) {
                                         notseen++;
                                     }
                                 }
@@ -103,13 +103,13 @@
                             messages.innerHTML = "";
                             spanNotSeen.textContent = " 0";
                             sessionStorage.setItem("currentChat", user.username);
+                            socket.emit("seen", sessionStorage.getItem("user_id"), sessionStorage.getItem("currentChat"), new Date());
                             currentChat.innerText = user.username;
                             recipientUsernameInput.value = user.username;
                             let url = "/chat?" + new URLSearchParams({
                                 user_id: sessionStorage.getItem("user_id"),
                                 recipient_username: user.username
                             });
-                            console.log(url);
                             fetch(url, {
                                 headers: {
                                     "Content-Type": "application/json",
@@ -118,10 +118,10 @@
                             })
                                 .then(res => res.json())
                                 .then(resJSON => {
-                                    console.log(resJSON);
                                     const msgContainer = document.createDocumentFragment();
                                     for (msg of resJSON) {
                                         let newMsg = document.createElement("li");
+                                        newMsg.setAttribute("data-idMsg", msg.id);
                                         newMsg.classList.add("formato-msg");
                                         let newMsgDate = document.createElement("small");
                                         newMsgDate.classList.add("formato-msg-date");
@@ -146,6 +146,11 @@
                                         //newMsg.textContent = msg.body;
                                         newMsg.appendChild(msgContent);
                                         newMsg.appendChild(newMsgDate);
+                                        let tick = document.createElement("small");
+                                        msg.seen == "1" ? tick.textContent = "✓" : tick.textContent = "..."; tick.classList.add("formato-tick");
+                                        newMsg.appendChild(tick);
+
+
                                         msgContainer.appendChild(newMsg);
                                     }
                                     if (resJSON[0] == undefined) {
@@ -160,7 +165,6 @@
                                 user_id: sessionStorage.getItem("user_id"),
                                 recipient_username: user.username
                             });
-                            console.log(url);
                             fetch(url, {
                                 method: "PUT",
                                 headers: {
@@ -188,7 +192,6 @@
             let formData = new FormData(form);
             formData.forEach((value, key) => (object[key] = value));
             let json = JSON.stringify(object);
-            console.log(json);
             fetch("/chat", {
                 headers: {
                     "Content-Type": "application/json",
@@ -198,13 +201,7 @@
                 body: json
             })
                 .then((res) => {
-                    console.log(res);
-                    console.log("ESTE ESTES ESTE");
-                    console.log(json);
                     let aux = JSON.parse(json);
-                    console.log(aux);
-
-                    //socket.emit("newMsg");
                     socket.emit("newMsgV2", sessionStorage.getItem("user_id"), sessionStorage.getItem("currentChat"));
                 })
 
@@ -217,16 +214,35 @@
             console.log(res);
         })
 
+        socket.on("seen", (ouu, time) => {
+                let messagesChildren = messages.children;
+                for (msg of messagesChildren) {
+                    let timeMsg = msg.getElementsByClassName("formato-msg-date")[0];
+                    console.log("--------------");
+                    console.log(new Date(timeMsg.textContent));
+                    console.log(new Date(time));
+                    console.log(new Date(timeMsg.textContent) < new Date(time));
+                    console.log("--------------");
+                    if (new Date(timeMsg.textContent) < new Date(time)) {
+                        console.log(msg);
+                        let tickAux = msg.getElementsByClassName("formato-tick")[0];
+                        console.log(tickAux);
+                        tickAux.textContent = "✓";
+                        console.log(tickAux);
+                        console.log("Ok");
+                    }
+                    else{
+                        console.log("nono");
+                    }
+                }
+        })
+
         socket.on("alert", (ouu) => {
-            console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-            console.log(ouu);
-            console.log(ouu == sessionStorage.getItem("currentChat") || ouu == sessionStorage.getItem("username"));
             if (ouu == sessionStorage.getItem("currentChat") || ouu == sessionStorage.getItem("username")) {
                 let url = "/chat/last?" + new URLSearchParams({
                     user_id: sessionStorage.getItem("user_id"),
                     recipient_username: sessionStorage.getItem("currentChat")
                 });
-                console.log(url);
                 fetch(url, {
                     headers: {
                         "Content-Type": "application/json",
@@ -258,13 +274,16 @@
                         msgContent.textContent = resJSON[0].body;
                         newMsg.appendChild(msgContent);
                         newMsg.appendChild(newMsgDate);
+                        let tick = document.createElement("small");
+                        tick.classList.add("formato-tick")
+                        tick.textContent = "...";
+                        newMsg.appendChild(tick);
                         messages.appendChild(newMsg);
                     });
                 url = "/chat/seen?" + new URLSearchParams({
                     user_id: sessionStorage.getItem("user_id"),
                     recipient_username: sessionStorage.getItem("currentChat")
                 });
-                console.log(url);
                 fetch(url, {
                     method: "PUT",
                     headers: {
@@ -273,26 +292,17 @@
                     }
                 })
                     .then(res => res.json())
-                    let chats = document.getElementsByClassName("button-chat");
-                for(let chat of chats){
-                    console.log(chat);
-                    console.log(chat.textContent);
-                }
+                let chats = document.getElementsByClassName("button-chat");
             }
             else {
                 //LOGICA PARA ACTUALIZAR BOTON CON CANTIDAD DE MENSAJES SIN LEER
                 console.log("FUERA DE CHAT");
                 let chats = document.getElementsByClassName("button-chat");
-                for(let chat of chats){
-                    console.log(chat);
-                    console.log(chat.textContent);
+                for (let chat of chats) {
                     let affectedChat = chat.textContent;
-                    console.log("ESTO DE ACA SE NECESITA RAI NAU");
-                    
-                    console.log(ouu);
                     let split = affectedChat.split(" ");
                     console.log(split[0]);
-                    if(split[0] == ouu){    
+                    if (split[0] == ouu) {
                         let url = "/chat/notseen?" + new URLSearchParams({
                             user_id: sessionStorage.getItem("user_id"),
                             recipient_username: ouu
@@ -309,12 +319,7 @@
                                 return res.json();
                             })
                             .then((resJSON) => {
-                                console.log("FINAL FINAL")
-                                console.log(resJSON);
                                 chat.textContent = ouu + " " + resJSON.length;
-                                console.log(chat.textContent);
-                                console.log("AAAAAAAA");
-                                console.log("Cantidad de mensajes no vistos: " + resJSON);
                             });
 
 
@@ -328,7 +333,6 @@
                 user_id: sessionStorage.getItem("user_id"),
                 recipient_username: sessionStorage.getItem("currentChat")
             });
-            console.log(url);
             fetch(url, {
                 headers: {
                     "Content-Type": "application/json",
@@ -337,9 +341,6 @@
             })
                 .then(res => res.json())
                 .then(resJSON => {
-                    console.log(resJSON[0]);
-                    console.log(sessionStorage.getItem("lastMsg"));
-                    console.log(sessionStorage.getItem("lastMsg") != resJSON.body);
                     if (sessionStorage.getItem("lastMsg") != resJSON[0].id) {
                         let newMsg = document.createElement("li");
                         newMsg.classList.add("formato-msg");
@@ -362,7 +363,6 @@
                         const msgContent = document.createElement("p");
                         msgContent.classList.add("formato-msg-texto")
                         msgContent.textContent = resJSON[0].body;
-                        //newMsg.textContent = msg.body;
                         newMsg.appendChild(msgContent);
                         newMsg.appendChild(newMsgDate);
                         messages.appendChild(newMsg);
