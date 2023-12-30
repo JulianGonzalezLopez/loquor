@@ -187,7 +187,7 @@
 
         form.addEventListener("submit", (e) => {
             e.preventDefault();
-
+            socket.emit("seen", sessionStorage.getItem("user_id"), sessionStorage.getItem("currentChat"), new Date());
             let object = {};
             let formData = new FormData(form);
             formData.forEach((value, key) => (object[key] = value));
