@@ -51,7 +51,8 @@ Propuesta de un chat en red interna, inspirado en http://www.igniterealtime.org/
 
 ## Example of usage / Ejemplo de uso
 
-![2024-01-03-19-47-22](https://github.com/JulianGonzalezLopez/loquor/assets/94023125/c0dde099-1e2a-4398-b6f5-056ad6be0e9f)
+![2024-01-03-20-03-14](https://github.com/JulianGonzalezLopez/loquor/assets/94023125/68bc2fe3-507e-418e-a355-baa4005f5b77)
+
 
 
 ## To do list / Cosas por hacer:
