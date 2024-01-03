@@ -81,8 +81,6 @@ async function getMessages(user_id, username) {
       .catch(err=>{
         throw err;
       });
-      console.log(rows);
-      console.log("CANTIDAD: " + rows.length);
       await con.end();
       return rows;
   
@@ -94,8 +92,6 @@ async function getMessages(user_id, username) {
   }
 
   async function setMessagesToSeen(user_id, username, time) {
-    console.log("ESTO FALLA AHORA");
-    console.log(user_id, username, time);
     try {
       const con = await mysql.createConnection({
         host: process.env.HOST,
@@ -115,8 +111,6 @@ async function getMessages(user_id, username) {
         throw err;
       });
 
-      console.log(rows);
-      console.log("CANTIDAD: " + rows.length);
       await con.end();
       return rows;
   
@@ -157,12 +151,8 @@ async function getMessages(user_id, username) {
         throw err;
       });
 
-      console.log(user_id,other_user_id.id,message);
-
       const query = "INSERT INTO messages(creator_id, recipient_id, body, date) VALUES(?,?,?,NOW())";
       const [rows, fields] = await con.execute(query,[user_id,other_user_id.id, message]);
-      console.log("Filas afectadas:", rows.affectedRows);
-      console.log(rows);
       await con.end();
       return rows;
   
@@ -190,13 +180,8 @@ async function getMessages(user_id, username) {
           };
         }
 
-        console.log("Nombre de quien recibe");
-        console.log(recipient_username);
-        console.log("Nombre de quien recibe");
         const query = "SELECT id FROM users where username = ?";
         const [rows, fields] = await con.execute(query,[recipient_username]);
-        console.log("ID USUARIO A MENSAJEAR");
-        console.log(rows);
         await con.end();
         return rows[0];
 
@@ -223,7 +208,6 @@ async function getMessages(user_id, username) {
 
         const query = "SELECT username FROM users where id = ?";
         const [rows, fields] = await con.execute(query,[id]);
-        console.log(rows);
         await con.end();
         return rows[0];
 
@@ -244,8 +228,6 @@ async function getMessages(user_id, username) {
 
         const query = "SELECT id FROM users";
         const [rows, fields] = await con.execute(query);
-        console.log("ID USUARIOS A MENSAJEAR - getUsersId");
-        console.log(rows);
         await con.end();
         return rows;
 

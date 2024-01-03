@@ -1,15 +1,26 @@
 const express = require("express");
 
 const adminAuth = require("../authAdminMiddeware.js");
-const {createUser, modifyUser, deleteUser, getUsers} = require("../db_connections.js");
+const {createUser, modifyUser, deleteUser, getUsers, getUser} = require("../db_connections.js");
 
 const router = express.Router();
 
 //Tengo que ver como voy a cubrir este endpoint
 router.get("/", async (req,res)=>{
     try{
-        console.log("ok");
         let users = await getUsers();
+        res.json(users);
+    }
+    catch(error){
+        console.error("FALLÓ");
+        res.end();
+    }
+});
+
+router.get("/status", async (req,res)=>{
+    const { username } = req.query;
+    try{
+        let users = await getUser(username);
         console.log(users);
         res.json(users);
     }
@@ -37,7 +48,6 @@ router.put("/", async (req,res)=>{
     console.log(req.body);
     const { oldusername, username, password } = req.body;
     try{
-        console.log("ESTO ES UN PUTO");
         await modifyUser(oldusername,username,password);
     }
     catch(error){

@@ -11,11 +11,14 @@ async function deleteTables(){
     database: process.env.DATABASE
   });
   console.log(await con.execute("show tables"));
-
-  await con.execute("DROP TABLE messages")
+  await con.execute("DROP TABLE sessions")
   .then(()=>{
-    con.execute("DROP TABLE users");
-  });
+    con.execute("DROP TABLE messages")
+    .then(()=>{
+      con.execute("DROP TABLE users");
+    });
+  })
+
 }
 
 
@@ -36,6 +39,7 @@ async function setDB() {
         username varchar(64) NOT NULL,
         password varchar(32) NOT NULL,
         role varchar(20) DEFAULT 'user',
+        connected BOOLEAN DEFAULT FALSE,
         PRIMARY KEY(id)
     )`);
 
@@ -57,8 +61,15 @@ async function setDB() {
         FOREIGN KEY(creator_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
     )`);
+
+    await con.execute(`CREATE TABLE IF NOT EXISTS sessions(
+      user_id int NOT NULL,
+      socket_id varchar(255) NOT NULL,
+      PRIMARY KEY(user_id, socket_id),
+      FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+  )`);
+
   let res = await con.execute("SHOW TABLES");
-  console.log(res);
 }
 
 async function createUser(username, password,is_admin) {
@@ -78,7 +89,6 @@ async function createUser(username, password,is_admin) {
 
     let query = "SELECT * FROM users WHERE username = ?";
     let [rows, fields] = await con.execute(query, [username]);
-    console.log(rows + " igualdades");
     if(rows.length > 0){
       throw {
         "en":"This user already exists",
@@ -94,13 +104,86 @@ async function createUser(username, password,is_admin) {
       query = "INSERT INTO users(username, password) VALUES (?, ?)";
       [rows, fields] = await con.execute(query, [username, password]);
     }
-    console.log("Filas afectadas:", rows.affectedRows);
     await con.end();
   } catch (error) {
     console.error("Error en la creación de usuario:", error);
     throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
   }
 }
+
+async function createSession(uid,socketid) {
+  try {
+    if (!uid) {
+      throw new Error(
+        "Se requieren el uid"
+      );
+    }
+
+    const con = await mysql.createConnection({
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+    });
+
+    let query = "SELECT * FROM sessions WHERE user_id = ?";
+    let [rows, fields] = await con.execute(query, [uid]);
+
+    if(rows.length < 1){
+      query = "INSERT INTO sessions(user_id, socket_id) VALUES (?, ?)";
+      let [rows, fields] = await con.execute(query, [uid, socketid]);
+    }
+    else{
+      query = "UPDATE sessions set socket_id = ? WHERE user_id = ?";
+      [rows, fields] = await con.execute(query, [socketid, uid]);
+    }
+    
+  } catch (error) {
+    console.error("Error en la creación de usuario:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+  
+}
+
+
+async function changeConnectionState(uid, state) {
+  try {
+    if (!uid) {
+      throw new Error(
+        "Se requieren el uid"
+      );
+    }
+
+    const con = await mysql.createConnection({
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+    });
+
+    let query = "SELECT * FROM users WHERE id = ?";
+    let [rows, fields] = await con.execute(query, [uid]);
+
+    if(rows.length < 1){
+      //Nose
+    }
+    else{
+      console.log("Estado de conección de" + rows[0].username +  " : " + rows[0].connected);
+      query = "UPDATE users set connected = ? WHERE id = ?";
+      console.log(state);
+      console.log(uid);
+      [rows, fields] = await con.execute(query,[state,uid]);
+      return rows[0]
+    }
+
+  } catch (error) {
+    console.error("Error en la creación de usuario:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+  
+}
+
+
 
 async function modifyUser(oldusername, username, password) {
   try {
@@ -121,7 +204,6 @@ async function modifyUser(oldusername, username, password) {
       let query = "UPDATE users set username = ?, password = ? where username = ?";
       [rows, fields] = await con.execute(query, [username, password, oldusername]);
       const formedQuery = con.format(query, [username, password, oldusername]);
-      console.log("Consulta SQL formada:", formedQuery);
     } else if (username) {
       let query = "UPDATE users set username = ? where username = ?";
       [rows, fields] = await con.execute(query, [username,oldusername]);
@@ -129,7 +211,6 @@ async function modifyUser(oldusername, username, password) {
       let query = "UPDATE users set password = ? where username = ?";
       [rows, fields] = await con.execute(query, [password, oldusername]);
     }
-    console.log("Filas afectadas:", rows.affectedRows);
     await con.end();
   } catch (error) {
     console.error("Error en la modificacion del usuario:", error);
@@ -138,7 +219,6 @@ async function modifyUser(oldusername, username, password) {
 }
 
 async function deleteUser(username) {
-  console.log("A VER EL USER "+ username);
   try {
     if (!username) {
       throw new Error(
@@ -155,7 +235,6 @@ async function deleteUser(username) {
 
     const query = "DELETE FROM users WHERE username = ?";
     const [rows, fields] = await con.execute(query, [username]);
-    console.log("Filas afectadas:", rows.affectedRows);
     await con.end();
 
   } catch (error) {
@@ -173,9 +252,29 @@ async function getUsers() {
       database: process.env.DATABASE
     });
 
-    const query = "SELECT * FROM users";
+    const query = "SELECT username, connected FROM users";
     const [rows, fields] = await con.execute(query);
-    console.log("Filas afectadas:", rows.affectedRows);
+    await con.end();
+    return rows;
+
+  } catch (error) {
+    console.error("Error en la obtencion de usuarios:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+}
+
+async function getUser(username) {
+  try {
+    const con = await mysql.createConnection({
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+    });
+
+    const query = "SELECT username, connected FROM users WHERE username = ?";
+    const [rows, fields] = await con.execute(query,[username]);
+    console.log("ESTO IMPORTA AHORA");
     console.log(rows);
     await con.end();
     return rows;
@@ -186,9 +285,36 @@ async function getUsers() {
   }
 }
 
+async function getUserIdFromSession(sessionid) {
+  try {
+    const con = await mysql.createConnection({
+      host: process.env.HOST,
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+    });
+
+    const query = "SELECT * FROM sessions WHERE socket_id = ?";
+    const [rows, fields] = await con.execute(query,[sessionid]);
+    console.log(rows);
+    await con.end();
+    if(rows.length < 1){
+      throw {
+        "en":"There is not a session yet",
+        "en":"No hay una sesion todavia"
+      }
+    }
+    return rows[0].user_id;
+
+  } catch (error) {
+    console.error("Error en la obtencion de usuarios:", error);
+    throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
+  }
+}
+
+
 
 async function verifyPassword(username, password){
-  console.log("Usuario y pass a verificar: " + username + " : " + password);
   try {
     const con = await mysql.createConnection({
       host: process.env.HOST,
@@ -239,7 +365,6 @@ async function verifyPassword(username, password){
 }
 
 async function verifyPasswordAndRole(username, password){
-  console.log("Usuario y pass a verificar: " + username + " : " + password);
   try {
     const con = await mysql.createConnection({
       host: process.env.HOST,
@@ -257,7 +382,6 @@ async function verifyPasswordAndRole(username, password){
       }
     }
     await con.end();
-    console.log(rows[0]);
     
     if(rows[0].password !== password){
       throw {
@@ -274,7 +398,6 @@ async function verifyPasswordAndRole(username, password){
             "es":"Sos un administrador",
             "is_admin": true
           };
-          console.log(response);
           return response;
       }
       else{
@@ -297,4 +420,4 @@ async function verifyPasswordAndRole(username, password){
 setDB();
 
 
-module.exports = {createUser, modifyUser, deleteUser, getUsers, verifyPassword, verifyPasswordAndRole};
+module.exports = {createUser, modifyUser, deleteUser, getUsers, getUser, verifyPassword, verifyPasswordAndRole, createSession, getUserIdFromSession, changeConnectionState};

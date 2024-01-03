@@ -139,6 +139,10 @@ main {
   border-radius: 4px;
 }
 
+.disconnected{
+  background-color: gray !important;
+}
+
 .msg, .foreign-msg {
   
   margin-top: 0.05rem;

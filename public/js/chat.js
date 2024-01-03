@@ -12,6 +12,7 @@ let currentRoom;
 window.addEventListener("load", () => {
     userIdInput.value = sessionStorage.getItem("user_id");
     socket.emit("joinRooms", sessionStorage.getItem("user_id"));
+    socket.emit("createSession", sessionStorage.getItem("user_id"));
     sessionStorage.setItem("currentChat", "");
     fetch("/users", {
         method: "get",
@@ -31,7 +32,15 @@ window.addEventListener("load", () => {
             resJSON.forEach((user) => {
                 const listItem = document.createElement("button");
                 listItem.textContent = user.username;
-                listItem.classList.add("button-chat");
+                console.log(user);
+                if(user.connected == 1){
+                    listItem.classList.add("button-chat");
+                }
+                else{
+                    listItem.classList.add("button-chat");
+                    listItem.classList.add("disconnected");
+                }
+                
                 let spanNotSeen = document.createElement("span");
                 const url = "/chat/notseen?" + new URLSearchParams({
                     user_id: sessionStorage.getItem("user_id"),
@@ -201,6 +210,43 @@ socket.on("seen", (ouu, time) => {
             }
         }
 })
+
+socket.on("changeConnectionState",(uuu)=>{
+    console.log(uuu);
+    let url = "/users/status?" + new URLSearchParams({
+        username: uuu
+    });
+    fetch(url, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": sessionStorage.getItem("token") ? sessionStorage.getItem("token") : ""
+        }
+    })
+        .then(res => res.json())
+        .then(resJSON => {
+            console.log(resJSON);
+            let chats = document.getElementsByClassName("button-chat");
+            console.log(chats);
+            for(let chat of chats){
+                let split = chat.innerText.split(" ");
+                console.log(split[0]);
+                if(split[0] == uuu){
+                    if(resJSON[0].connected == 1){
+                        if(chat.classList.contains("disconnected")){
+                            chat.classList.remove("disconnected");
+                        }
+                    }
+                    else{
+                        if(!chat.classList.contains("disconnected")){
+                            chat.classList.add("disconnected");
+                        }
+                    }
+                }
+            }
+        });
+
+})
+
 
 socket.on("alert", (ouu) => {
     if (ouu == sessionStorage.getItem("currentChat") || ouu == sessionStorage.getItem("username")) {

@@ -14,6 +14,8 @@ const authorize = require("./routes/authorize");
 const authMiddleware = require("./authMiddleware");
 const admin = require("./routes/admin");
 const {getUserId, getUsersId, getUsername} = require("./chat_db_connections.js");
+const {createSession, changeConnectionState, getUserIdFromSession} = require("./db_connections.js");
+const { Console } = require("console");
 //CONSTANTS
 const port = process.env.PORT ?? 3000;
 const currentDirectory = __dirname;
@@ -28,6 +30,37 @@ const io = new socket.Server(server, {
 //Subscribed events of the server using webSockets
 io.on("connection",(socket)=>{
 
+    socket.on("createSession", async (uid)=>{
+        console.log("ID DE LA SESION");
+        console.log(socket.id);
+        await createSession(uid, socket.id);
+        let res = await changeConnectionState(uid, 1);
+
+
+        let uu = await getUsername(uid);
+        console.log(uu);
+        io.emit("changeConnectionState",uu.username);
+    })
+
+    socket.on("disconnect", async ()=>{
+        console.log("Me desconecté!");
+        try {
+            let uid = await getUserIdFromSession(socket.id);
+            console.log("Usuario por session id");
+            console.log(uid);
+            console.log(socket.id);
+            console.log("Usuario por session id");
+            let res = await changeConnectionState(uid, 0);
+            console.log("La conexión se ha cambiado con éxito:", res);
+            let uu = await getUsername(uid);
+            console.log("Se desconectó: " + uu.username);
+            io.emit("changeConnectionState",uu.username);
+        } catch (error) {
+            // Manejar el error aquí
+            console.error("Error al cambiar el estado de conexión:", error);
+        }
+    })
+
 
     socket.on("joinRooms", async (uid)=>{
         let ouidsA = await getUsersId();
@@ -35,17 +68,9 @@ io.on("connection",(socket)=>{
             //ALWAYS BIGGER NUMBER FIRST
             if(uid > ouidA.id){
                 socket.join(uid+"_"+ouidA.id);
-                io.to(uid+"_"+ouidA.id).emit("connected",{
-                    "message":`You have succesfully connected to ${uid}_${ouidA.id}`,
-                    "room": `${uid}_${ouidA.id}`
-                });
             }
             else{
                 socket.join(ouidA.id+"_"+uid);
-                io.to(ouidA.id+"_"+uid).emit("connected",{
-                    "message":`You have succesfully connected to ${ouidA.id}_${uid}`,
-                    "room": `${ouidA.id}_${uid}`
-                });
             }
             console.log("ok");
         }
@@ -83,35 +108,6 @@ io.on("connection",(socket)=>{
         }
         
     });
-
-
-    socket.on("joinRoom", async (uid,ouu)=>{
-        
-        let ouidA = await getUserId(ouu)
-        .catch(err=>{
-            throw err;
-        })
-
-        let ouid = ouidA.id;
-        
-        console.log("ZZZZZZZZZZZZZZZZZZZZZ");
-        console.log(uid);
-        console.log(ouid);
-        console.log(ouu);
-        console.log("ZZZZZZZZZZZZZZZZZZZZZ");
-        socket.join(uid+"_"+ouid);
-        socket.join(ouid+"_"+uid);
-
-        io.to(uid+"_"+ouid).emit("connected",{
-            "message":`You have succesfully connected to ${uid}_${ouid}`,
-            "room": `${uid}_${ouid}`
-
-        });
-        io.to(ouid+"_"+uid).emit("connected",{
-            "message":`You have succesfully connected to ${ouid}_${uid}`,
-            "room": `${ouid}_${uid}`
-        });
-    })
 
 
     socket.on("newMsg",()=>{
