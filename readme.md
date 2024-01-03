@@ -1,10 +1,13 @@
 # Loquor
+
 ## Description / Descripcion
+
 Proposal of chat on lan, inspired on http://www.igniterealtime.org/projects/spark/, designed to offer a practical solution without the requirement to install individually in each PC or smartphone
 
 Propuesta de un chat en red interna, inspirado en http://www.igniterealtime.org/projects/spark/, diseñado para ofrecer una solución práctica sin necesidad de instalación individual en cada PC o smartphone.
 
 ## Used technologies / Tecnologias usadas
+
 - NodeJs
 - HTML
 - CSS
@@ -12,6 +15,7 @@ Propuesta de un chat en red interna, inspirado en http://www.igniterealtime.org/
 - MySQL
 
 ## Used modules / Modulos usados
+
 - Express
 - Morgan
 - Path
@@ -29,7 +33,10 @@ Propuesta de un chat en red interna, inspirado en http://www.igniterealtime.org/
 - POST /login: Verifies if its a valid user / Verifica si el usuario es valido
 ### Chat
 - POST /chat: Sends a message given the content in the body of the request / Envia el mensaje segun el contenido del body
-- GET /chat: Obtains sent messages between 2 users / Obtiene los mensajes desde la base de datos entre 2 usuarios
+- GET /chat: Get sent messages between 2 users / Obtiene los mensajes desde la base de datos entre 2 usuarios
+- GET /chat/last: Get last sent message from a chat / Obtiene el ultimo mensaje de un chat
+- GET /chat/notseen: Get not seen messages from a chat / Obtiene los mensajes no leidos de un chat
+- GET /chat/seen: Updates the states of messages from a chat / Actualiza los mensajes de un chat
 ### Authorize
 - POST /Authorize: Generates and returns a jwt / Genera y retorna un jwt #IT WILL CHANGE / BE DELETED#
 ### Admin
@@ -37,25 +44,18 @@ Propuesta de un chat en red interna, inspirado en http://www.igniterealtime.org/
 - POST /admin: Verifies if its a valid admin user / Verifica si es un usuario admin valido
 ### Users
 - GET /users: Returns a list of the users in the app / Retorna una lista de los usuarios de la app (I should add an authorization method for this endpoint)
+- GET /users/status: Returns a given user data / Retorna la informacion de un usuario dado
 - POST /users: Add a new user to the DB (Admin auth required) / Agrega un nuevo usuario a la base de datos (Autorizacion de admin requerida)
 - PUT /users: Modifies a register (Admin auth required) / Modifica un registro de usuario (Autorizacion de admin requerida)
 - DELETE /users: Deletes an user register (Admin auth required) / Elimina un registro de usuario (Autorizacion de admin requerida)
 
 ## Example of usage / Ejemplo de uso
-This is an early stage example of usage of Loquor, I expect to improve the user interface even more (eliminate / hide chat related stuff when a chat has not been clicked) (DONE)
 
-Este es un ejemplo en las etapas tempranas de Loquor, espero mejorar mas la interfaz de usuario (eliminar / ocultar cosas relacionadas al chat cuando no han sido clickeados) (HECHO)
-![2023-12-10-17-31-23](https://github.com/JulianGonzalezLopez/loquor/assets/94023125/62ef8d25-3535-4a17-908d-ac9cff0ef1aa)
+![2024-01-03-19-47-22](https://github.com/JulianGonzalezLopez/loquor/assets/94023125/c0dde099-1e2a-4398-b6f5-056ad6be0e9f)
 
 
 ## To do list / Cosas por hacer:
-- Improve visuals
-- Divide CSS and JS from HTML (not doing it out of laziness, ngl)
-- Change the way messages are passed onSent
-- Delete console.logs
-- Divide messages on the user interface so that recived msgs appear on the left and those sent on the right
 
-## Possibilities
-- Add amount of unread msg per chat
-- Show if an used has read your msg
-- Show if an user is on
+- "Dryify" the code (primarily front)
+-  Beautify the admin interface and add more visual information
+-  Add error handling
