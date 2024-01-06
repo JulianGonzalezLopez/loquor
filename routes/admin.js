@@ -13,6 +13,13 @@ router.get("/",(req,res)=>{
     res.sendFile(parentDirectory + "/public/html/loginAdmin.html");
 });
 
+router.use((req,res,next)=>{
+  const ip = req.ip || req.connection.remoteAddress;
+  req.clientIP = ip;
+  req.serverIP = process.env.SERVER_IP;
+  next();
+});
+
 router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÃ VACIO
   const {username, password} = req.body;
   console.log("intentando")
@@ -26,6 +33,8 @@ router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÃ
       }
       const result = await verifyPasswordAndRole(username,password);
       console.log("Resultado de verificacion");
+      result.clientIP = req.clientIP;
+      result.serverIP = req.serverIP;
       console.log(result);
       if(result.is_admin == true){
         res.status(200).send(result);

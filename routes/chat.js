@@ -6,8 +6,9 @@ const router = express.Router();
 
 router.post("/", async (req,res)=>{
     try{
-        await sendMessage(req.body.user_id, req.body.recipient_username, req.body.input);
-        res.status(200).send({
+        let response = await sendMessage(req.body.user_id, req.body.recipient_username, req.body.input)
+        console.log(response);
+        res.send({
             "en":"Message sent",
             "es":"Mensaje enviado"
         });

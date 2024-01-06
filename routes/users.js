@@ -61,7 +61,7 @@ router.delete("/", async (req,res)=>{
     console.log(req.body);
     const { username } = req.body;
     try{
-        console.log("ESTO ES UN PUTO => " + username);
+        console.log("ESTO ES UN PUNTO*** => " + username);
         let response = await deleteUser(username);
         res.json(response);
     }

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 router.post("/", (req, res) => {
     try{
-        jwt.sign({user:req.body.username}, process.env.SECRET, {expiresIn:"1h"} ,(err,token)=>{
+        jwt.sign({user:req.body.username}, process.env.SECRET, {expiresIn:"3h"} ,(err,token)=>{
             if(err){
                 throw err;
             }

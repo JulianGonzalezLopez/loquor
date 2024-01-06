@@ -5,7 +5,8 @@ loginForm.addEventListener("submit",(e)=>{
     let formData = new FormData(loginForm);
     formData.forEach((value, key) => (object[key] = value));
     let json = JSON.stringify(object);
-    
+    let myIP;
+    let serverIP;
     fetch("/login", {
         headers: {
             "Content-Type": "application/json",
@@ -15,6 +16,8 @@ loginForm.addEventListener("submit",(e)=>{
     })
     .then(res=>res.json())
     .then(res=>{
+        myIP = res.clientIP;
+        serverIP = res.serverIP;
         if(res["id"] == undefined){
             window.alert(res["es"]);
             return null;
@@ -33,10 +36,13 @@ loginForm.addEventListener("submit",(e)=>{
             console.log("Token: " + json.token);
             sessionStorage.setItem("token",json.token);
             console.log(sessionStorage.getItem("token"));
-            window.location.href = 'http://localhost:3000/html/chat.html';
-            //window.location.href = "http://192.168.0.9:3000/html/chat.html"; //THIS IS THE DIRECTION THAT YOU SHOULD REDIRECT YOUR USERS TO
-        })
-        
+            console.log(myIP == "::1");
+            if(myIP == "::1"){
+                window.location.href = 'http://localhost:3000/html/chat.html';
+            }
+            else{
+                window.location.href = `http://${serverIP}:3000/html/chat.html`; 
+            }
+        });
     });
-    
 })

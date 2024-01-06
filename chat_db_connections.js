@@ -134,16 +134,32 @@ async function getMessages(user_id, username) {
   
       if(message == "" || message == null){
         throw {
-          "en":"The message's body can't be empty",
-          "es":"El cuerpo del mensaje no puede estar vacio"
+          statusCode: 400,
+          message: {
+              "en": "The message's body can't be empty",
+              "es": "El cuerpo del mensaje no puede estar vacío"
+          }
         };
       };
 
+      if(recipient_username == "" || recipient_username == null){
+        throw {
+          statusCode: 400,
+          message: {
+              "en": "Recipient username can't be empty",
+              "es": "El nombre de usuario del destinatario no puede estar vacío"
+          }
+        };
+      }
+
       if(user_id == "" || user_id == null){
-        throw{
-          "en":"Seems like you tried to break the program, bad boy. The user id can't be empty",
-          "es": "Parece que quisiste romper el programa, chico malo. El id de usuario no puede estar vacio"
-        }
+        throw {
+          statusCode: 400,
+          message: {
+              "en": "User ID can't be empty",
+              "es": "El ID de usuario no puede estar vacío"
+          }
+        };
       }
 
       const other_user_id = await getUserId(recipient_username)
@@ -157,7 +173,7 @@ async function getMessages(user_id, username) {
       return rows;
   
     } catch (error) {
-      console.error("Error obtencion del id del usuario:", error);
+      console.error("Error al enviar un mensaje:", error);
       throw error; // Propagar el error para que pueda ser manejado en el código que llama a esta función
     }
   }

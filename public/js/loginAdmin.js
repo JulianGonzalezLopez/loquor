@@ -6,6 +6,8 @@ loginForm.addEventListener("submit", (e) => {
   formData.forEach((value, key) => (object[key] = value));
   let json = JSON.stringify(object);
   console.log(json);
+  let myIP;
+  let serverIP;
   fetch("/admin", {
     headers: {
       "Content-Type": "application/json",
@@ -21,11 +23,16 @@ loginForm.addEventListener("submit", (e) => {
       }
     })
     .then((res) => {
+      myIP = res.clientIP;
+      serverIP = res.serverIP;
       console.log("!listo");
       console.log(res);
       sessionStorage.setItem("admin_token", res.token);
       console.log(sessionStorage.getItem("admin_token"));
-      window.location.href = "http://localhost:3000/html/adminPanel.html";
-      //window.location.href = "http://192.168.0.9:3000/html/adminPanel.html"; //THIS IS THE DIRECTION THAT YOU SHOULD REDIRECT YOUR USERS TO
+      if (myIP == "::1") {
+        window.location.href = "http://localhost:3000/html/adminPanel.html";
+      } else {
+        window.location.href = `http://${serverIP}:3000/html/adminPanel.html`;
+      }
     });
 });

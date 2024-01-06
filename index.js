@@ -130,9 +130,8 @@ app.use("/users", users); //This has admin related authorization methods
 app.use("/authorize", authorize);
 app.use("/admin",admin);
 app.use("/login", login);
-
-app.use(authMiddleware); //User auth middleware
-
+//User auth middleware
+app.use(authMiddleware); 
 //User auth requires routes
 app.use("/chat",chat);
 

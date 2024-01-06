@@ -11,6 +11,13 @@ router.get("/",(req,res)=>{
     res.sendFile(parentDirectory + "/public/html/login.html");
 });
 
+router.use((req,res,next)=>{
+    const ip = req.socket.remoteAddress;
+    req.clientIP = ip;
+    req.serverIP = process.env.SERVER_IP;
+    console.log(ip);
+    next();
+});
 
 router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÃ VACIO
     const {username, password} = req.body;
@@ -23,6 +30,8 @@ router.post("/", async (req,res)=>{    //TENGO QUE DESCUBRIR PORQUE EL BODY ESTÃ
         }
         const result = await verifyPassword(username,password);
         console.log("Resultado de verificacion");
+        result.clientIP = req.clientIP;
+        result.serverIP = req.serverIP;
         res.json(result);
     }
     catch(err){
